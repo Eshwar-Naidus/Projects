@@ -74,3 +74,5 @@ Developed for the Codex_Intership program.
 - The app now uses only locally bundled JavaScript modules (via Vite) instead of runtime CDN import maps, reducing supply-chain/script-injection risk from third-party script hosts.
 - `index.html` no longer loads Tailwind via runtime CDN script; styling is served from local static assets.
 - A strict referrer policy (`strict-origin-when-cross-origin`) is defined in `index.html` to minimize metadata leakage on cross-origin requests.
+- External webfont loading was removed from `index.html` to reduce third-party request surface and passive telemetry exposure.
+- Browser-side policy hardening was added in `index.html` via Content Security Policy and Permissions Policy headers to reduce script injection and limit unnecessary hardware/API access.

@@ -8,5 +8,6 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
 }
