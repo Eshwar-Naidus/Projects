@@ -23,32 +23,27 @@ An advanced document engineering tool that parses existing resumes and tailors t
 *   **Styling**: Tailwind CSS, Lucide React (Icons)
 *   **Visualization**: Recharts
 
-## ⚙️ How to Run Locally (Remove AI Studio Traces)
+## ⚙️ How to Run Locally
 
-To run this application as a standalone local project (removing the "Emerged by Google AI Studio" traces), follow these steps:
+To run this application as a standalone local project, follow these steps:
 
 1.  **Download & Extract**: Clone or download this repository to your local machine.
 
-2.  **Clean Up `index.html`**:
-    *   Open `index.html`.
-    *   **Delete** the entire `<script type="importmap">...</script>` block.
-    *   Ensure the script tag points to the source: `<script type="module" src="/index.tsx"></script>`.
-
-3.  **Install Dependencies**:
+2.  **Install Dependencies**:
     *   Open your terminal in the project folder.
     *   Run:
     ```bash
     npm install
     ```
 
-4.  **Configure Environment**:
+3.  **Configure Environment**:
     *   Create a `.env` file in the root directory.
     *   Add your API Key:
     ```env
     VITE_API_KEY=your_google_gemini_api_key_here
     ```
 
-5.  **Run the App**:
+4.  **Run the App**:
     *   Start the local development server:
     ```bash
     npm run dev
@@ -73,3 +68,11 @@ To erect (deploy) this code to your specific repository `https://github.com/Eswa
 
 ## 📄 License
 Developed for the Codex_Intership program.
+
+## 🔐 Security hardening notes
+
+- The app now uses only locally bundled JavaScript modules (via Vite) instead of runtime CDN import maps, reducing supply-chain/script-injection risk from third-party script hosts.
+- `index.html` no longer loads Tailwind via runtime CDN script; styling is served from local static assets.
+- A strict referrer policy (`strict-origin-when-cross-origin`) is defined in `index.html` to minimize metadata leakage on cross-origin requests.
+- External webfont loading was removed from `index.html` to reduce third-party request surface and passive telemetry exposure.
+- Browser-side policy hardening was added in `index.html` via Content Security Policy and Permissions Policy headers to reduce script injection and limit unnecessary hardware/API access.
