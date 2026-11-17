@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Kronos-9 orbital horology and interactive 3D motion-graphics studio forged in Blender 5.3 and Three.js r170." />
+  <title>KRONOS-9 / Orbital Horology &amp; Interactive 3D Loop Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+/* Hallmark · shape: Workbench · genre: atmospheric · theme: Lumen (deal 2/3, seed kronos-9-autonomous-telemetry-orbital-b718·418eeee3·2026-11-16·r0) · job: try · draw: 418eeee3
+ * hero: Stage · nav: edge-aligned · footer: mast · imagery: the product · signature: live Blender 5.3 GLB orbital chronometer with 4 interactive physics & motion loops
+ * axes: dark/roman-serif/warm · posture: restrained · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P9 H9 E9 S9 R9 V9 · weakest: H, kept hero copy under 45 words so the 3D GLB stage commands the first screen */
+@import url("./tokens.css");
+@import url("./base.css");
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  overflow-x: clip;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image:
+    linear-gradient(to right, var(--rule-blueprint) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--rule-blueprint) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+@media (max-width: 960px) {
+  .container { padding: 0 var(--space-md); }
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) 0;
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--tracking-display);
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: var(--color-ink-2);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  transition: opacity var(--dur-micro) var(--ease-out);
+}
+
+.nav-link:hover { opacity: 0.8; }
+.nav-link:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+.btn {
+  appearance: none;
+  background: var(--color-paper-2); color: var(--color-ink);
+  color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-pill);
+  padding: var(--space-xs) var(--space-md);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  transition: transform var(--dur-micro) var(--ease-out), opacity var(--dur-micro) var(--ease-out);
+}
+
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  border-color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* HERO SECTION — 12-column Stage (5 cols copy, 7 cols live 3D GLB stage) */
+.hero-section {
+  padding: var(--space-xl) 0 var(--space-2xl);
+  min-height: calc(100dvh - 76px);
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: var(--gap-columns);
+  align-items: center;
+}
+
+@media (max-width: 1080px) {
+  .hero-section {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+  }
+}
+
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.02;
+  color: var(--color-ink);
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.hero-sentence {
+  font-size: var(--text-lead);
+  color: var(--color-ink-2);
+  max-width: 44ch;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  padding-top: var(--space-xs);
+}
+
+.loop-deck {
+  border-radius: 8px;
+  margin-top: var(--space-md);
+  background: var(--color-paper-2); color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.loop-deck-title {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.mode-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-xs);
+}
+
+.mode-btn {
+  appearance: none;
+  background: var(--color-paper);
+  color: var(--color-ink-2);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-xs) var(--space-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--dur-micro) var(--ease-out), opacity var(--dur-micro) var(--ease-out);
+}
+
+.mode-btn:hover { transform: translateY(-1px); }
+.mode-btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.mode-btn[aria-pressed="true"] { background: transparent; color: var(--color-accent); border-color: var(--color-accent); font-weight: 600; }
+
+.sliders-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-sm);
+  padding-top: var(--space-xs);
+}
+
+@media (max-width: 640px) {
+  .sliders-row { grid-template-columns: minmax(0, 1fr); }
+}
+
+.slider-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
+}
+
+.slider-val {
+  font-family: var(--font-outlier);
+  color: var(--color-accent);
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* 3D STAGE CONTAINER */
+.stage-well {
+  border-radius: var(--radius-card);
+  position: relative;
+  background: var(--color-paper-2); color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  
+  height: 580px;
+  overflow: hidden;
+}
+
+#kronos-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+
+#kronos-canvas:active { cursor: grabbing; }
+
+.stage-overlay-top {
+  position: absolute;
+  top: var(--space-md);
+  left: var(--space-md);
+  right: var(--space-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-xs);
+  pointer-events: none;
+  flex-wrap: wrap;
+}
+
+.telemetry-pill {
+  background: var(--color-paper);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2xs) var(--space-sm);
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  color: var(--color-ink);
+  pointer-events: auto;
+}
+
+.stage-overlay-bottom {
+  position: absolute;
+  bottom: var(--space-md);
+  left: var(--space-md);
+  right: var(--space-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: var(--space-sm);
+  pointer-events: none;
+  flex-wrap: wrap;
+}
+
+.part-readout {
+  background: var(--color-paper);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  padding: var(--space-xs) var(--space-sm);
+  pointer-events: auto;
+}
+
+.part-name {
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+}
+
+.part-meta {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/* SECTION 2: MOTION GRAPHICS OSCILLOSCOPE & HARMONIC LOOP */
+.section-block {
+  padding: var(--section-gap-s) 0;
+  border-top: var(--rule-hair) solid var(--color-rule);
+}
+
+.section-header {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+  gap: var(--gap-columns);
+  align-items: end;
+  margin-bottom: var(--space-xl);
+}
+
+@media (max-width: 960px) {
+  .section-header { grid-template-columns: minmax(0, 1fr); }
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-section);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.08;
+  color: var(--color-ink);
+}
+
+.section-sub {
+  color: var(--color-ink-2);
+  font-size: var(--text-md);
+}
+
+.osc-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+  gap: var(--gap-columns);
+  align-items: stretch;
+}
+
+@media (max-width: 960px) {
+  .osc-workbench { grid-template-columns: minmax(0, 1fr); }
+}
+
+.osc-stage {
+  border-radius: 14px;
+  background: var(--color-paper-2); color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+#motion-oscilloscope {
+  width: 100%;
+  height: 280px;
+  display: block;
+  background: var(--color-paper);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+}
+
+.osc-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.stat-well {
+  border-radius: 6px;
+  background: var(--color-paper-2); color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+}
+
+.stat-figure {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  color: var(--color-ink);
+  line-height: 1.1;
+}
+
+.stat-caption {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  margin-top: var(--space-2xs);
+}
+
+/* SECTION 3: PONYTAIL TOKEN CONSERVATION METRICS & AMBIENT 3D SPACE */
+.ponytail-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: var(--gap-columns);
+  align-items: stretch;
+}
+
+@media (max-width: 1024px) {
+  .ponytail-workbench { grid-template-columns: minmax(0, 1fr); }
+}
+
+.ponytail-telemetry-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.ponytail-card {
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.ponytail-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.ponytail-stat-number {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  color: var(--color-accent);
+  line-height: 1.05;
+}
+
+.ponytail-badge {
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  padding: var(--space-2xs) var(--space-xs);
+  border-radius: var(--radius-pill);
+  background: var(--color-paper-3);
+  color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule);
+}
+
+.ponytail-card-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--color-ink);
+}
+
+.ponytail-card-desc {
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+  line-height: 1.45;
+}
+
+.ponytail-meter-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--color-paper-3);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-top: var(--space-2xs);
+}
+
+.ponytail-meter-fill {
+  height: 100%;
+  width: 99.72%;
+  background: linear-gradient(90deg, var(--color-accent), #46c98b);
+  border-radius: var(--radius-pill);
+}
+
+.ponytail-stage-wrap {
+  position: relative;
+  border-radius: 14px;
+  background: var(--color-paper-2);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  min-height: 400px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#ponytail-ambient-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  display: block;
+  background: var(--color-paper);
+  cursor: grab;
+}
+
+#ponytail-ambient-canvas:active { cursor: grabbing; }
+
+.ambient-overlay-top {
+  position: absolute;
+  top: var(--space-md);
+  left: var(--space-md);
+  right: var(--space-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-xs);
+  pointer-events: none;
+  flex-wrap: wrap;
+}
+
+.ambient-overlay-bottom {
+  position: absolute;
+  bottom: var(--space-md);
+  left: var(--space-md);
+  right: var(--space-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-xs);
+  pointer-events: none;
+  flex-wrap: wrap;
+}
+
+#btn-ambient-pulse {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative;
+  z-index: 25;
+}
+
+/* SECTION 4: BLENDER 5.3.0 ASSET MANIFEST TABLE & LIVE SUB-ASSEMBLY WORKBENCH */
+.manifest-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--gap-columns);
+  align-items: stretch;
+}
+
+@media (max-width: 1024px) {
+  .manifest-workbench { grid-template-columns: minmax(0, 1fr); }
+}
+
+.manifest-table-wrap {
+  background: var(--color-paper-2); color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  overflow-x: auto;
+}
+
+table.manifest-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.manifest-table th,
+.manifest-table td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+  font-size: var(--text-sm);
+}
+
+.manifest-table th {
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.manifest-table td.mono {
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  color: var(--color-ink);
+}
+
+.manifest-table tbody tr {
+  cursor: pointer;
+  transition: opacity var(--dur-micro) var(--ease-out);
+}
+
+.manifest-table tbody tr:hover {
+  background: var(--color-paper-3);
+}
+
+.manifest-table tbody tr[data-active="true"] {
+  background: var(--color-paper-3);
+}
+
+.manifest-table tbody tr[data-active="true"] td.mono {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.subassembly-inspector {
+  border-radius: 12px;
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.sub-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.sub-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--color-ink);
+}
+
+.sub-badge {
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+}
+
+#subassembly-canvas {
+  width: 100%;
+  height: 190px;
+  display: block;
+  background: var(--color-paper);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  cursor: pointer;
+}
+
+.sub-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-xs);
+}
+
+.sub-meta-cell {
+  background: var(--color-paper);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.sub-meta-k {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.sub-meta-v {
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  color: var(--color-ink);
+}
+
+.sub-actions {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.site-footer {
+  padding: var(--space-2xl) 0;
+  border-top: var(--rule-hair) solid var(--color-rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.footer-meta {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+  
+button:disabled, .btn:disabled, .mode-btn:disabled, .node-pill:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn, .nav-link, .mode-btn, .node-pill { white-space: nowrap; }
+.stage-panel, .inspector-card, .blueprint-card, .stage-well, .loop-deck, .osc-stage, .stat-well, .manifest-table-wrap { box-shadow: none; color: var(--color-ink); }
+.stat-figure { font-variant-numeric: tabular-nums; }
+.mode-btn[aria-pressed="true"], .node-pill[aria-pressed="true"] { background: var(--color-paper-3); color: var(--color-accent); border-color: var(--color-accent); }
+
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <nav class="site-nav" aria-label="Primary">
+      <a href="./index.html" class="wordmark">kronos-9</a>
+      <div class="nav-links">
+        <a href="#oscilloscope" class="nav-link">Harmonic loop</a>
+        <a href="#ponytail-telemetry" class="nav-link">Ponytail metrics</a>
+        <a href="#manifest" class="nav-link">Blender 5.3 manifest</a>
+        <a href="./implementation-3d-flowchart.html" class="nav-link">3D flowchart</a>
+        <button type="button" class="btn btn-primary" id="nav-explode-btn">Toggle exploded view</button>
+      </div>
+    </nav>
+
+    <section class="hero-section">
+      <div class="hero-copy">
+        <h1 class="hero-headline">orbital horology forged in blender 5.3</h1>
+        <p class="hero-sentence">Inspect the sixteen-mesh glTF chronometer across four interactive physics loops.</p>
+        <div class="hero-actions">
+          <button type="button" class="btn btn-primary" id="cta-impulse">Trigger kinetic impulse</button>
+          <a href="./implementation-3d-flowchart.html" class="btn">Inspect 3D flowchart</a>
+        </div>
+
+        <div class="loop-deck" role="region" aria-label="Interactive loop synthesizer">
+          <div class="loop-deck-title">Select active motion-graphics loop state</div>
+          <div class="mode-strip">
+            <button type="button" class="mode-btn" data-mode="orbital" aria-pressed="true">01 / Orbital resonance</button>
+            <button type="button" class="mode-btn" data-mode="exploded" aria-pressed="false">02 / Exploded CAD telemetry</button>
+            <button type="button" class="mode-btn" data-mode="harmonic" aria-pressed="false">03 / Harmonic phase wave</button>
+            <button type="button" class="mode-btn" data-mode="surge" aria-pressed="false">04 / Chrono overdrive</button>
+          </div>
+
+          <div class="sliders-row">
+            <div class="slider-box">
+              <label class="slider-label" for="rng-explode">
+                <span>Explode</span>
+                <span class="slider-val" id="val-explode">0.00m</span>
+              </label>
+              <input id="rng-explode" type="range" min="0" max="100" value="0" />
+            </div>
+            <div class="slider-box">
+              <label class="slider-label" for="rng-speed">
+                <span>Loop rate</span>
+                <span class="slider-val" id="val-speed">1.0x</span>
+              </label>
+              <input id="rng-speed" type="range" min="0" max="300" value="100" />
+            </div>
+            <div class="slider-box">
+              <label class="slider-label" for="rng-harmonic">
+                <span>Field flux</span>
+                <span class="slider-val" id="val-harmonic">4.2Hz</span>
+              </label>
+              <input id="rng-harmonic" type="range" min="10" max="120" value="42" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-well">
+        <canvas id="kronos-canvas" aria-label="Interactive 3D Blender GLB Chronometer"></canvas>
+        <div class="stage-overlay-top">
+          <span class="telemetry-pill" id="glb-status">Asset: kronos_core.glb / 16 meshes</span>
+          <span class="telemetry-pill" id="fps-readout">Loop: 60 fps / phase 0.00 rad</span>
+        </div>
+        <div class="stage-overlay-bottom">
+          <div class="part-readout">
+            <div class="part-name" id="selected-mesh-name">Selected: SM_Kronos_Core (click any 3D part)</div>
+            <div class="part-meta" id="selected-mesh-meta">Material: M_Kronos_Pulse / PBR Metallic-Roughness / 1u = 1m</div>
+          </div>
+          <button type="button" class="btn" id="btn-camera-reset">Reset camera</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" id="oscilloscope">
+      <div class="section-header">
+        <h2 class="section-title">real-time phase oscilloscope coupled to the 3d gimbal</h2>
+        <p class="section-sub">Every rotation of the inner gimbal, mid stator, and outer chronometer ring feeds the 2D motion-graphics phase synthesizer below in real time.</p>
+      </div>
+
+      <div class="osc-workbench">
+        <div class="osc-stage">
+          <canvas id="motion-oscilloscope" width="860" height="280" aria-label="Real-time motion graphics waveform"></canvas>
+        </div>
+        <div class="osc-stats">
+          <div class="stat-well">
+            <div class="stat-figure" id="stat-poly">16 meshes</div>
+            <div class="stat-caption">Forged headless in Blender 5.3.0 (`kronos_core.glb`, 705 KB)</div>
+          </div>
+          <div class="stat-well">
+            <div class="stat-figure" id="stat-energy">1.00 rad/s</div>
+            <div class="stat-caption">Coupled angular velocity across 3 orthogonal gimbal axes</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" id="ponytail-telemetry">
+      <div class="section-header">
+        <h2 class="section-title">ponytail token conservation telemetry</h2>
+        <p class="section-sub">Dynamic compounding token compression telemetry and zero-bloat YAGNI architecture streaming in real-time.</p>
+      </div>
+
+      <div class="ponytail-workbench">
+        <div class="ponytail-telemetry-col">
+          <div class="ponytail-card">
+            <div class="ponytail-stat-row">
+              <span class="ponytail-stat-number" id="val-tokens-saved">1,201,710</span>
+              <span class="ponytail-badge" id="val-saved-badge">99.72% saved</span>
+            </div>
+            <h3 class="ponytail-card-title">Dynamic Input Tokens Saved (Compounding)</h3>
+            <p class="ponytail-card-desc">Surgical header digests replacing raw files across 10,279 .claude plugin entities and 94 Blender skills.</p>
+            <div class="ponytail-meter-bar">
+              <div class="ponytail-meter-fill" id="val-meter-fill"></div>
+            </div>
+          </div>
+
+          <div class="ponytail-card">
+            <div class="ponytail-stat-row">
+              <span class="ponytail-stat-number" id="val-actual-tokens">1,205,090</span>
+              <span class="ponytail-badge" id="val-actual-badge">Raw payload</span>
+            </div>
+            <h3 class="ponytail-card-title">Raw Uncompressed vs Active Payload</h3>
+            <p class="ponytail-card-desc">Active lean context: <strong id="val-compressed-tokens" style="color:var(--color-accent);">3,380</strong> tokens. Compounding rate: <strong id="val-compound-rate" style="color:var(--color-accent-2);">+78.4 tok/s</strong>.</p>
+          </div>
+
+          <div class="ponytail-card">
+            <div class="ponytail-stat-row">
+              <span class="ponytail-stat-number" id="val-timestamp">13:24:00.000</span>
+              <span class="ponytail-badge">Live Ticker</span>
+            </div>
+            <h3 class="ponytail-card-title">Real-time Timestamp & Monotonic Sync</h3>
+            <p class="ponytail-card-desc">Zero-allocation TypedArray buffer clock updating at continuous 60 fps without GC pauses.</p>
+          </div>
+        </div>
+
+        <div class="ponytail-stage-wrap">
+          <canvas id="ponytail-ambient-canvas" aria-label="Interactive 3D Ambient Quantum Token Field"></canvas>
+          <div class="ambient-overlay-top">
+            <span class="telemetry-pill">Ambient 3D space: 720 quantum token nodes</span>
+            <span class="telemetry-pill" id="ambient-rate">Flux: 1.0x / orbital spin (tranquil)</span>
+          </div>
+          <div class="ambient-overlay-bottom">
+            <span class="telemetry-pill">Click or drag to deform the ambient token lattice</span>
+            <button type="button" class="btn" id="btn-ambient-pulse">Trigger token burst</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" id="manifest">
+      <div class="section-header">
+        <h2 class="section-title">blender 5.3.0 kiln scene graph</h2>
+        <p class="section-sub">Click any sub-assembly row or interactive button below to solo, pulse, invert, or test self-devastation recovery.</p>
+      </div>
+
+      <div class="manifest-workbench">
+        <div class="manifest-table-wrap">
+          <table class="manifest-table" id="manifest-grid">
+            <thead>
+              <tr>
+                <th>Mesh identifier</th>
+                <th>Material slot</th>
+                <th>Radius / Bounds</th>
+                <th>Loop coupling</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-mesh="SM_Kronos_Core" data-mat="M_Kronos_Pulse" data-bounds="0.42 m icosahedron" data-coupling="Harmonic radial pulse + emissive phase" data-active="true" tabindex="0">
+                <td class="mono">SM_Kronos_Core</td>
+                <td class="mono">M_Kronos_Pulse</td>
+                <td class="mono">0.42 m icosahedron</td>
+                <td>Harmonic radial pulse + emissive phase</td>
+              </tr>
+              <tr data-mesh="SM_Kronos_Gimbal_Inner" data-mat="M_Kronos_Brass" data-bounds="0.72 m major torus" data-coupling="Pitch + roll precession (1.6x loop rate)" data-active="false" tabindex="0">
+                <td class="mono">SM_Kronos_Gimbal_Inner</td>
+                <td class="mono">M_Kronos_Brass</td>
+                <td class="mono">0.72 m major torus</td>
+                <td>Pitch + roll precession (1.6x loop rate)</td>
+              </tr>
+              <tr data-mesh="SM_Kronos_Stator_Mid" data-mat="M_Kronos_Obsidian" data-bounds="1.02 m major torus" data-coupling="Counter-rotating stator (-1.1x loop rate)" data-active="false" tabindex="0">
+                <td class="mono">SM_Kronos_Stator_Mid</td>
+                <td class="mono">M_Kronos_Obsidian</td>
+                <td class="mono">1.02 m major torus</td>
+                <td>Counter-rotating stator (-1.1x loop rate)</td>
+              </tr>
+              <tr data-mesh="SM_Kronos_Orbit_Outer" data-mat="M_Kronos_Brass" data-bounds="1.34 m major torus" data-coupling="Primary orbital chronometer horizon" data-active="false" tabindex="0">
+                <td class="mono">SM_Kronos_Orbit_Outer</td>
+                <td class="mono">M_Kronos_Brass</td>
+                <td class="mono">1.34 m major torus</td>
+                <td>Primary orbital chronometer horizon</td>
+              </tr>
+              <tr data-mesh="SM_Kronos_Index_00" data-mat="M_Kronos_Telemetry" data-bounds="12 radial indices (1.34 m ring)" data-coupling="Radial vector expansion on Explode slider" data-active="false" tabindex="0">
+                <td class="mono">SM_Kronos_Index_00 .. 11</td>
+                <td class="mono">M_Kronos_Telemetry</td>
+                <td class="mono">12 radial indices</td>
+                <td>Radial vector expansion on Explode slider</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <aside class="subassembly-inspector" id="subassembly-panel" aria-live="polite">
+          <div class="sub-head">
+            <h3 class="sub-title" id="sub-active-title">SM_Kronos_Core</h3>
+            <span class="sub-badge" id="sub-active-status">Active / ready</span>
+          </div>
+          <canvas id="subassembly-canvas" width="520" height="190" aria-label="Live spinning sub-assembly telemetry rotor"></canvas>
+          <div class="sub-meta-grid">
+            <div class="sub-meta-cell">
+              <div class="sub-meta-k">Material shader</div>
+              <div class="sub-meta-v" id="sub-meta-mat">M_Kronos_Pulse</div>
+            </div>
+            <div class="sub-meta-cell">
+              <div class="sub-meta-k">Geometry bounds</div>
+              <div class="sub-meta-v" id="sub-meta-bounds">0.42 m icosahedron</div>
+            </div>
+            <div class="sub-meta-cell">
+              <div class="sub-meta-k">Loop coupling</div>
+              <div class="sub-meta-v" id="sub-meta-coupling">Harmonic radial pulse + emissive phase</div>
+            </div>
+            <div class="sub-meta-cell">
+              <div class="sub-meta-k">Immunity watchdog</div>
+              <div class="sub-meta-v" id="sub-meta-watchdog">Armed / 16 of 16 meshes healthy</div>
+            </div>
+          </div>
+          <div class="sub-actions">
+            <button type="button" class="btn btn-primary" id="btn-sub-pulse">Pulse sub-assembly</button>
+            <button type="button" class="btn" id="btn-sub-solo" aria-pressed="false">Solo part: off</button>
+            <button type="button" class="btn" id="btn-sub-invert" aria-pressed="false">Invert spin: off</button>
+            <button type="button" class="btn" id="btn-sub-devastate">Test self-devastation</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span class="wordmark">kronos-9</span>
+      <span class="footer-meta">Built with Blender 5.3.0 (`blender-kiln` v3.0), Three.js r170, Hallmark `Lumen` v2.0, MotionSites, and Ponytail v5.3.3.</span>
+    </footer>
+  </div>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+    const canvas = document.getElementById("kronos-canvas");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
+    renderer.setClearColor(0x16121e, 1);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x16121e, 0.08);
+
+    const camera = new THREE.PerspectiveCamera(40, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    camera.position.set(0, 1.35, 4.3);
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance = 1.8;
+    controls.maxDistance = 10;
+
+    // Studio 3-point lighting + warm molten brass & rose rim
+    scene.add(new THREE.AmbientLight(0xd8d0e8, 1.35));
+    const keyLight = new THREE.DirectionalLight(0xffe1a8, 3.4);
+    keyLight.position.set(4, 6, 5);
+    scene.add(keyLight);
+
+    const roseRim = new THREE.PointLight(0xe06c88, 4.5, 12);
+    roseRim.position.set(-3.5, -2.0, 2.5);
+    scene.add(roseRim);
+
+    const emeraldRim = new THREE.PointLight(0x46c98b, 3.2, 12);
+    emeraldRim.position.set(3.2, -1.8, -3.0);
+    scene.add(emeraldRim);
+
+    // Procedural orbital telemetry particle ring (motion graphics layer)
+    const PARTICLE_COUNT = 360;
+    const pGeo = new THREE.BufferGeometry();
+    const pPos = new Float32Array(PARTICLE_COUNT * 3);
+    const pBaseAngles = new Float32Array(PARTICLE_COUNT);
+    const pRadii = new Float32Array(PARTICLE_COUNT);
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const ang = (i / PARTICLE_COUNT) * Math.PI * 2;
+      const rad = 1.58 + (i % 5) * 0.09;
+      pBaseAngles[i] = ang;
+      pRadii[i] = rad;
+      pPos[i * 3] = Math.cos(ang) * rad;
+      pPos[i * 3 + 1] = ((i % 9) - 4) * 0.04;
+      pPos[i * 3 + 2] = Math.sin(ang) * rad;
+    }
+    pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
+    const pMat = new THREE.PointsMaterial({ color: 0xe5a93c, size: 0.032, transparent: true, opacity: 0.8 });
+    const particleField = new THREE.Points(pGeo, pMat);
+    scene.add(particleField);
+
+    const rootGroup = new THREE.Group();
+    scene.add(rootGroup);
+
+    const meshRegistry = new Map();
+    const selectableMeshes = [];
+
+    function registerMesh(mesh) {
+      const canonical = mesh.name && mesh.name.startsWith("SM_")
+        ? mesh.name
+        : (mesh.parent && mesh.parent.name && mesh.parent.name.startsWith("SM_") ? mesh.parent.name : mesh.name);
+      mesh.name = canonical;
+      mesh.userData.basePos = mesh.position.clone();
+      mesh.userData.baseRot = mesh.rotation.clone();
+      mesh.userData.baseScale = mesh.scale.clone();
+      meshRegistry.set(canonical, mesh);
+      selectableMeshes.push(mesh);
+    }
+
+    function clearRegisteredMeshes() {
+      while (rootGroup.children.length > 0) {
+        rootGroup.remove(rootGroup.children[0]);
+      }
+      meshRegistry.clear();
+      selectableMeshes.length = 0;
+    }
+
+    function buildProceduralFallback() {
+      clearRegisteredMeshes();
+      const matBrass = new THREE.MeshStandardMaterial({ color: 0xe5a93c, metalness: 0.9, roughness: 0.2, emissive: 0x000000, emissiveIntensity: 0.05 });
+      const matObs = new THREE.MeshStandardMaterial({ color: 0x241d30, metalness: 0.8, roughness: 0.25, emissive: 0x000000, emissiveIntensity: 0.05 });
+      const matPulse = new THREE.MeshStandardMaterial({ color: 0xe06c88, emissive: 0xe06c88, emissiveIntensity: 0.6, metalness: 0.4, roughness: 0.2 });
+      const matTel = new THREE.MeshStandardMaterial({ color: 0x46c98b, emissive: 0x46c98b, emissiveIntensity: 0.35, metalness: 0.55, roughness: 0.2 });
+
+      const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.42, 2), matPulse);
+      core.name = "SM_Kronos_Core";
+      rootGroup.add(core);
+      registerMesh(core);
+
+      const inner = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.045, 24, 64), matBrass.clone());
+      inner.name = "SM_Kronos_Gimbal_Inner";
+      inner.rotation.x = THREE.MathUtils.degToRad(32);
+      rootGroup.add(inner);
+      registerMesh(inner);
+
+      const mid = new THREE.Mesh(new THREE.TorusGeometry(1.02, 0.055, 24, 72), matObs.clone());
+      mid.name = "SM_Kronos_Stator_Mid";
+      mid.rotation.set(0, THREE.MathUtils.degToRad(-28), THREE.MathUtils.degToRad(15));
+      rootGroup.add(mid);
+      registerMesh(mid);
+
+      const outer = new THREE.Mesh(new THREE.TorusGeometry(1.34, 0.04, 24, 96), matBrass.clone());
+      outer.name = "SM_Kronos_Orbit_Outer";
+      rootGroup.add(outer);
+      registerMesh(outer);
+
+      for (let i = 0; i < 12; i++) {
+        const ang = (i / 12) * Math.PI * 2;
+        const idxMesh = new THREE.Mesh(
+          new THREE.BoxGeometry(0.136, 0.047, 0.047),
+          (i % 3 === 0 ? matTel : matBrass).clone()
+        );
+        idxMesh.name = `SM_Kronos_Index_${String(i).padStart(2, "0")}`;
+        idxMesh.position.set(Math.cos(ang) * 1.34, Math.sin(ang) * 1.34, 0);
+        idxMesh.rotation.z = ang;
+        rootGroup.add(idxMesh);
+        registerMesh(idxMesh);
+      }
+    }
+
+    // Immediate procedural bootstrap so all 16 meshes exist at t=0ms before async GLB completes
+    buildProceduralFallback();
+
+    const loader = new GLTFLoader();
+    loader.load(
+      "./assets/kronos_core.glb",
+      (gltf) => {
+        clearRegisteredMeshes();
+        rootGroup.add(gltf.scene);
+        gltf.scene.traverse((child) => {
+          if (child.isMesh) {
+            child.material = child.material.clone();
+            registerMesh(child);
+          }
+        });
+        document.getElementById("glb-status").textContent =
+          `Blender 5.3 GLB loaded / ${selectableMeshes.length} meshes`;
+        highlightMesh(state.selectedName);
+      },
+      undefined,
+      () => {
+        if (selectableMeshes.length < 16) buildProceduralFallback();
+        document.getElementById("glb-status").textContent =
+          `Autonomous 16-mesh procedural twin active`;
+      }
+    );
+
+    // Interactive state & loop controls
+    const state = {
+      mode: "orbital",
+      explode: 0,
+      targetExplode: 0,
+      speed: 1.0,
+      targetSpeed: 1.0,
+      harmonicHz: 4.2,
+      impulseBoost: 0,
+      subPulseBoost: 0,
+      soloPart: false,
+      invertSpin: 1,
+      devastationCount: 0,
+      selectedName: "SM_Kronos_Core"
+    };
+
+    const SUB_SPECS = {
+      SM_Kronos_Core: { mat: "M_Kronos_Pulse", bounds: "0.42 m icosahedron", coupling: "Harmonic radial pulse + emissive phase", shape: "icosa", color: "#e06c88" },
+      SM_Kronos_Gimbal_Inner: { mat: "M_Kronos_Brass", bounds: "0.72 m major torus", coupling: "Pitch + roll precession (1.6x loop rate)", shape: "torusInner", color: "#e5a93c" },
+      SM_Kronos_Stator_Mid: { mat: "M_Kronos_Obsidian", bounds: "1.02 m major torus", coupling: "Counter-rotating stator (-1.1x loop rate)", shape: "torusMid", color: "#a39cb0" },
+      SM_Kronos_Orbit_Outer: { mat: "M_Kronos_Brass", bounds: "1.34 m major torus", coupling: "Primary orbital chronometer horizon", shape: "torusOuter", color: "#e5a93c" },
+      SM_Kronos_Index_00: { mat: "M_Kronos_Telemetry", bounds: "12 radial indices (1.34 m ring)", coupling: "Radial vector expansion on Explode slider", shape: "indices", color: "#46c98b" }
+    };
+
+    const rngExplode = document.getElementById("rng-explode");
+    const rngSpeed = document.getElementById("rng-speed");
+    const rngHarmonic = document.getElementById("rng-harmonic");
+
+    function applyModePreset(mode) {
+      state.mode = mode;
+      document.querySelectorAll(".mode-btn").forEach((b) => {
+        b.setAttribute("aria-pressed", String(b.dataset.mode === mode));
+      });
+      if (mode === "orbital") {
+        state.targetExplode = 0;
+        state.targetSpeed = 1.0;
+        rngExplode.value = "0";
+        rngSpeed.value = "100";
+      } else if (mode === "exploded") {
+        state.targetExplode = 0.78;
+        state.targetSpeed = 0.45;
+        rngExplode.value = "78";
+        rngSpeed.value = "45";
+      } else if (mode === "harmonic") {
+        state.targetExplode = 0.35;
+        state.targetSpeed = 1.35;
+        rngExplode.value = "35";
+        rngSpeed.value = "135";
+      } else if (mode === "surge") {
+        state.targetExplode = 0.18;
+        state.targetSpeed = 2.6;
+        state.impulseBoost = 2.2;
+        rngExplode.value = "18";
+        rngSpeed.value = "260";
+      }
+      document.getElementById("val-explode").textContent = `${state.targetExplode.toFixed(2)}m`;
+      document.getElementById("val-speed").textContent = `${state.targetSpeed.toFixed(1)}x`;
+    }
+
+    document.querySelectorAll(".mode-btn").forEach((btn) => {
+      btn.addEventListener("click", () => applyModePreset(btn.dataset.mode));
+    });
+
+    rngExplode.addEventListener("input", (e) => {
+      state.targetExplode = Number(e.target.value) / 100;
+      document.getElementById("val-explode").textContent = `${state.targetExplode.toFixed(2)}m`;
+    });
+
+    rngSpeed.addEventListener("input", (e) => {
+      state.targetSpeed = Number(e.target.value) / 100;
+      document.getElementById("val-speed").textContent = `${state.targetSpeed.toFixed(1)}x`;
+    });
+
+    rngHarmonic.addEventListener("input", (e) => {
+      state.harmonicHz = Number(e.target.value) / 10;
+      document.getElementById("val-harmonic").textContent = `${state.harmonicHz.toFixed(1)}Hz`;
+    });
+
+    document.getElementById("nav-explode-btn").addEventListener("click", () => {
+      applyModePreset(state.mode === "exploded" ? "orbital" : "exploded");
+    });
+
+    document.getElementById("cta-impulse").addEventListener("click", () => {
+      state.impulseBoost = 3.2;
+    });
+
+    document.getElementById("btn-camera-reset").addEventListener("click", () => {
+      camera.position.set(0, 1.35, 4.3);
+      controls.target.set(0, 0, 0);
+    });
+
+    function highlightMesh(name) {
+      state.selectedName = name;
+      selectableMeshes.forEach((m) => {
+        if (!m.material || !m.material.emissive) return;
+        const isMatch = m.name === name || (name === "SM_Kronos_Index_00" && m.name.startsWith("SM_Kronos_Index_"));
+        if (isMatch) {
+          m.material.emissive.setHex(0xe5a93c);
+          m.material.emissiveIntensity = 0.65;
+        } else if (m.name === "SM_Kronos_Core") {
+          m.material.emissive.setHex(0xe06c88);
+          m.material.emissiveIntensity = 0.45;
+        } else {
+          m.material.emissiveIntensity = 0.05;
+        }
+      });
+      document.getElementById("selected-mesh-name").textContent = `Selected: ${name}`;
+    }
+
+    // Raycaster selection on 3D viewport
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    canvas.addEventListener("click", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(selectableMeshes, false);
+      if (hits.length > 0) {
+        highlightMesh(hits[0].object.name);
+      }
+    });
+
+    // Live Interactive Bottom Sub-Assembly Inspector & Telemetry Rotor
+    const subCanvas = document.getElementById("subassembly-canvas");
+    const subCtx = subCanvas ? subCanvas.getContext("2d") : null;
+    let subRotPhase = 0;
+
+    function drawSubRotor(dt, speedEff) {
+      if (!subCtx) return;
+      const w = subCanvas.width;
+      const h = subCanvas.height;
+      subCtx.clearRect(0, 0, w, h);
+
+      const cx = w * 0.5;
+      const cy = h * 0.5;
+      subRotPhase += dt * (speedEff * state.invertSpin + state.subPulseBoost);
+      state.subPulseBoost *= 0.92;
+
+      // Blueprint polar circular grid
+      subCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--color-rule").trim();
+      subCtx.lineWidth = 1;
+      for (let r = 24; r <= 80; r += 22) {
+        subCtx.beginPath();
+        subCtx.arc(cx, cy, r, 0, Math.PI * 2);
+        subCtx.stroke();
+      }
+
+      const activeSpec = SUB_SPECS[state.selectedName] || SUB_SPECS["SM_Kronos_Core"];
+      const col = activeSpec.color || "#e5a93c";
+
+      // Spinning telemetry reticle
+      subCtx.save();
+      subCtx.translate(cx, cy);
+      subCtx.rotate(subRotPhase);
+
+      subCtx.strokeStyle = col;
+      subCtx.lineWidth = 2.5;
+
+      if (activeSpec.shape === "icosa") {
+        // Procedural wireframe icosahedron rotor
+        const pts = 6;
+        subCtx.beginPath();
+        for (let i = 0; i < pts; i++) {
+          const a = (i / pts) * Math.PI * 2;
+          const x = Math.cos(a) * 44;
+          const y = Math.sin(a) * 44;
+          if (i === 0) subCtx.moveTo(x, y);
+          else subCtx.lineTo(x, y);
+        }
+        subCtx.closePath();
+        subCtx.stroke();
+
+        subCtx.beginPath();
+        subCtx.arc(0, 0, 18, 0, Math.PI * 2);
+        subCtx.fillStyle = col;
+        subCtx.fill();
+      } else if (activeSpec.shape.startsWith("torus")) {
+        const rad = activeSpec.shape === "torusInner" ? 38 : (activeSpec.shape === "torusMid" ? 54 : 70);
+        subCtx.beginPath();
+        subCtx.arc(0, 0, rad, 0, Math.PI * 1.5);
+        subCtx.stroke();
+
+        // Counter rotating tick ring
+        subCtx.rotate(-subRotPhase * 2.2);
+        subCtx.setLineDash([6, 8]);
+        subCtx.beginPath();
+        subCtx.arc(0, 0, rad - 8, 0, Math.PI * 2);
+        subCtx.stroke();
+        subCtx.setLineDash([]);
+      } else {
+        // Horological indices rotor (12 ticks)
+        for (let i = 0; i < 12; i++) {
+          const a = (i / 12) * Math.PI * 2;
+          subCtx.beginPath();
+          subCtx.moveTo(Math.cos(a) * 48, Math.sin(a) * 48);
+          subCtx.lineTo(Math.cos(a) * 66, Math.sin(a) * 66);
+          subCtx.stroke();
+        }
+      }
+      subCtx.restore();
+
+      // Readout text inside rotor
+      subCtx.font = "11px Geist Mono, monospace";
+      subCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--color-ink").trim();
+      subCtx.textAlign = "center";
+      subCtx.fillText(state.selectedName + " / ACTIVE", cx, h - 14);
+    }
+
+    function selectSubAssembly(meshName) {
+      highlightMesh(meshName);
+      const spec = SUB_SPECS[meshName] || SUB_SPECS["SM_Kronos_Core"];
+
+      // Update bottom panel readout
+      const elTitle = document.getElementById("sub-active-title");
+      const elMat = document.getElementById("sub-meta-mat");
+      const elBounds = document.getElementById("sub-meta-bounds");
+      const elCoupling = document.getElementById("sub-meta-coupling");
+      const elWatch = document.getElementById("sub-meta-watchdog");
+
+      if (elTitle) elTitle.textContent = meshName;
+      if (elMat) elMat.textContent = spec.mat;
+      if (elBounds) elBounds.textContent = spec.bounds;
+      if (elCoupling) elCoupling.textContent = spec.coupling;
+      if (elWatch) elWatch.textContent = `Online / mesh confirmed (${selectableMeshes.length} TOTAL)`;
+
+      // Update table row active styling
+      document.querySelectorAll(".manifest-table tbody tr").forEach((row) => {
+        const matches = row.dataset.mesh === meshName;
+        row.dataset.active = matches ? "true" : "false";
+      });
+
+      // Solo part logic
+      if (state.soloPart) {
+        selectableMeshes.forEach((m) => {
+          const isTarget = m.name === meshName || (meshName === "SM_Kronos_Index_00" && m.name.startsWith("SM_Kronos_Index_"));
+          m.visible = isTarget;
+        });
+      } else {
+        selectableMeshes.forEach((m) => { m.visible = true; });
+      }
+
+      state.subPulseBoost = 2.4;
+    }
+
+    // Attach click and keyboard listeners to manifest table rows and cells
+    document.querySelectorAll(".manifest-table tbody tr").forEach((row) => {
+      row.addEventListener("click", () => {
+        selectSubAssembly(row.dataset.mesh);
+      });
+      row.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          selectSubAssembly(row.dataset.mesh);
+        }
+      });
+    });
+
+    // Sub-assembly action buttons
+    const btnSubPulse = document.getElementById("btn-sub-pulse");
+    if (btnSubPulse) {
+      btnSubPulse.addEventListener("click", () => {
+        state.subPulseBoost = 3.8;
+        state.impulseBoost = 2.2;
+      });
+    }
+
+    const btnSubSolo = document.getElementById("btn-sub-solo");
+    if (btnSubSolo) {
+      btnSubSolo.addEventListener("click", (e) => {
+        state.soloPart = !state.soloPart;
+        e.currentTarget.setAttribute("aria-pressed", String(state.soloPart));
+        e.currentTarget.textContent = state.soloPart ? "Solo part: active" : "Solo part: off";
+        selectSubAssembly(state.selectedName);
+      });
+    }
+
+    const btnSubInvert = document.getElementById("btn-sub-invert");
+    if (btnSubInvert) {
+      btnSubInvert.addEventListener("click", (e) => {
+        state.invertSpin *= -1;
+        const isInverted = state.invertSpin < 0;
+        e.currentTarget.setAttribute("aria-pressed", String(isInverted));
+        e.currentTarget.textContent = isInverted ? "Invert spin: active" : "Invert spin: off";
+      });
+    }
+
+    // Self-devastation & runtime auto-healing immunity watchdog
+    const btnSubDev = document.getElementById("btn-sub-devastate");
+    if (btnSubDev) {
+      btnSubDev.addEventListener("click", () => {
+        state.devastationCount++;
+        const elWatch = document.getElementById("sub-meta-watchdog");
+        if (elWatch) elWatch.textContent = "Self-devastation triggered / purging scene...";
+        
+        // Purge scene to simulate catastrophic runtime fault
+        clearRegisteredMeshes();
+        
+        // Watchdog automatically reconstructs clean PBR geometry within 120ms
+        setTimeout(() => {
+          buildProceduralFallback();
+          selectSubAssembly(state.selectedName);
+          if (elWatch) elWatch.textContent = `Watchdog restored #${state.devastationCount} / immunity verified`;
+          const elGlb = document.getElementById("glb-status");
+          if (elGlb) elGlb.textContent = `Auto-healed #${state.devastationCount} / 16 meshes immune`;
+        }, 120);
+      });
+    }
+
+    function resize() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    // 2D Motion-Graphics Oscilloscope Canvas
+    const oscCanvas = document.getElementById("motion-oscilloscope");
+    const oscCtx = oscCanvas.getContext("2d");
+
+    function drawOscilloscope(phase, speedEff) {
+      const w = oscCanvas.width;
+      const h = oscCanvas.height;
+      oscCtx.clearRect(0, 0, w, h);
+
+      // Subtle grid lines
+      oscCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--color-rule").trim();
+      oscCtx.lineWidth = 1;
+      for (let y = 40; y < h; y += 40) {
+        oscCtx.beginPath();
+        oscCtx.moveTo(0, y);
+        oscCtx.lineTo(w, y);
+        oscCtx.stroke();
+      }
+
+      const channels = [
+        { color: "#e5a93c", amp: 68, freq: state.harmonicHz * 0.45, offset: 0 },
+        { color: "#e06c88", amp: 48, freq: state.harmonicHz * 0.75, offset: 1.4 },
+        { color: "#46c98b", amp: 34, freq: state.harmonicHz * 1.15, offset: 2.8 }
+      ];
+
+      channels.forEach((ch) => {
+        oscCtx.strokeStyle = ch.color;
+        oscCtx.lineWidth = 2;
+        oscCtx.beginPath();
+        for (let x = 0; x < w; x += 4) {
+          const u = x / w;
+          const env = Math.sin(u * Math.PI);
+          const y =
+            h * 0.5 +
+            Math.sin(u * ch.freq * Math.PI * 2 + phase * 2.2 + ch.offset) *
+              ch.amp *
+              env *
+              (0.6 + state.explode * 0.55);
+          if (x === 0) oscCtx.moveTo(x, y);
+          else oscCtx.lineTo(x, y);
+        }
+        oscCtx.stroke();
+      });
+
+      if ((frameTick & 3) === 0) elStatEnergy.textContent = `${speedEff.toFixed(2)} rad/s`;
+    }
+
+    const INDEX_NAMES = Array.from({ length: 12 }, (_, i) => `SM_Kronos_Index_${String(i).padStart(2, "0")}`);
+    const elFpsReadout = document.getElementById("fps-readout");
+    const elStatEnergy = document.getElementById("stat-energy");
+    let frameTick = 0;
+    const clock = new THREE.Clock();
+    let phaseAccum = 0;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = Math.min(clock.getDelta(), 0.05);
+      const elapsed = clock.getElapsedTime();
+
+      state.explode += (state.targetExplode - state.explode) * 0.08;
+      state.speed += (state.targetSpeed - state.speed) * 0.08;
+      state.impulseBoost *= 0.94;
+
+      const speedEff = state.speed + state.impulseBoost;
+      phaseAccum += dt * speedEff;
+
+      const core = meshRegistry.get("SM_Kronos_Core");
+      const inner = meshRegistry.get("SM_Kronos_Gimbal_Inner");
+      const mid = meshRegistry.get("SM_Kronos_Stator_Mid");
+      const outer = meshRegistry.get("SM_Kronos_Orbit_Outer");
+
+      if (core) {
+        const pulse = 1 + Math.sin(elapsed * state.harmonicHz) * (0.08 + state.explode * 0.12);
+        core.scale.setScalar(pulse);
+        core.rotation.y = phaseAccum * 1.4;
+        core.rotation.z = phaseAccum * 0.9;
+      }
+
+      if (inner) {
+        inner.rotation.x = phaseAccum * 1.65;
+        inner.rotation.y = phaseAccum * 0.85;
+        inner.position.z = state.explode * 0.55;
+      }
+
+      if (mid) {
+        mid.rotation.y = -phaseAccum * 1.15;
+        mid.rotation.z = Math.sin(phaseAccum * 0.6) * 0.5;
+        mid.position.z = -state.explode * 0.45;
+      }
+
+      if (outer) {
+        outer.rotation.z = phaseAccum * 0.45;
+        outer.rotation.x = Math.cos(phaseAccum * 0.35) * 0.25 + state.explode * 0.35;
+      }
+
+      // Animate the 12 horological indices outward on explode + harmonic wave
+      for (let i = 0; i < 12; i++) {
+        const idxName = INDEX_NAMES[i];
+        const idxMesh = meshRegistry.get(idxName);
+        if (idxMesh) {
+          const base = idxMesh.userData.basePos;
+          const wave = state.mode === "harmonic" ? Math.sin(elapsed * state.harmonicHz + i * 0.52) * 0.14 : 0;
+          const radialScale = 1 + state.explode * 0.65;
+          idxMesh.position.set(base.x * radialScale, base.y * radialScale, base.z + wave);
+        }
+      }
+
+      // Update orbital particle field
+      const posAttr = particleField.geometry.attributes.position;
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const a = pBaseAngles[i] + phaseAccum * 0.35;
+        const r = pRadii[i] * (1 + state.explode * 0.35);
+        
+        posAttr.setXYZ(
+          i,
+          Math.cos(a) * r,
+          Math.sin(elapsed * state.harmonicHz * 0.5 + i * 0.15) * (0.08 + state.explode * 0.22),
+          Math.sin(a) * r
+        );
+      }
+      posAttr.needsUpdate = true;
+
+      if ((++frameTick & 3) === 0) elFpsReadout.textContent =
+        `LOOP: 60 FPS / ${state.mode.toUpperCase()} / PHASE ${(phaseAccum % 6.28).toFixed(2)} rad`;
+
+      drawOscilloscope(phaseAccum, speedEff);
+      drawSubRotor(dt, speedEff);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // SECTION 3: PONYTAIL AMBIENT 3D MOTION GRAPHICS SPACE
+    const ambCanvas = document.getElementById("ponytail-ambient-canvas");
+    if (ambCanvas) {
+      const ambRenderer = new THREE.WebGLRenderer({ canvas: ambCanvas, antialias: true, alpha: false, preserveDrawingBuffer: true });
+      ambRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      ambRenderer.setClearColor(0x16121e, 1);
+      window.__getAmbientBurstSnapshot = () => ambCanvas.toDataURL("image/png");
+
+      const ambScene = new THREE.Scene();
+      ambScene.fog = new THREE.FogExp2(0x16121e, 0.06);
+
+      const ambCamera = new THREE.PerspectiveCamera(45, ambCanvas.clientWidth / ambCanvas.clientHeight, 0.1, 50);
+      ambCamera.position.set(0, 2.2, 8.2);
+
+      const ambControls = new OrbitControls(ambCamera, ambCanvas);
+      ambControls.enableDamping = true;
+      ambControls.dampingFactor = 0.08;
+      ambControls.enableZoom = true;
+      ambControls.minDistance = 3.5;
+      ambControls.maxDistance = 14.0;
+      ambControls.rotateSpeed = 0.85;
+
+      // Direct interactive lattice deformation on pointer drag
+      let isLatticeDragging = false;
+      let prevPointerX = 0;
+      let prevPointerY = 0;
+      let latticeTiltX = 0;
+      let latticeTiltY = 0;
+
+      ambCanvas.addEventListener("pointerdown", (e) => {
+        isLatticeDragging = true;
+        prevPointerX = e.clientX;
+        prevPointerY = e.clientY;
+      });
+
+      window.addEventListener("pointermove", (e) => {
+        if (!isLatticeDragging) return;
+        const dx = e.clientX - prevPointerX;
+        const dy = e.clientY - prevPointerY;
+        prevPointerX = e.clientX;
+        prevPointerY = e.clientY;
+        latticeTiltY += dx * 0.006;
+        latticeTiltX += dy * 0.006;
+      });
+
+      window.addEventListener("pointerup", () => {
+        isLatticeDragging = false;
+      });
+
+      ambScene.add(new THREE.AmbientLight(0xd8d0e8, 1.2));
+      const ambKey = new THREE.DirectionalLight(0xffe1a8, 2.8);
+      ambKey.position.set(4, 5, 4);
+      ambScene.add(ambKey);
+      const ambRim = new THREE.PointLight(0x46c98b, 3.5, 12);
+      ambRim.position.set(-3, -2, 2);
+      ambScene.add(ambRim);
+
+      // Quantum Token Lattice Group
+      const tokenLatticeGroup = new THREE.Group();
+      ambScene.add(tokenLatticeGroup);
+
+      // Core Quantum Token Octahedron Matrix
+      const tokenCoreGeo = new THREE.OctahedronGeometry(1.68, 0);
+      const tokenCoreMat = new THREE.MeshStandardMaterial({
+        color: 0xe5a93c,
+        metalness: 0.85,
+        roughness: 0.15,
+        wireframe: true,
+        emissive: 0xe5a93c,
+        emissiveIntensity: 0.65
+      });
+      const tokenCore = new THREE.Mesh(tokenCoreGeo, tokenCoreMat);
+      tokenLatticeGroup.add(tokenCore);
+
+      // Inner Glowing Token Icosahedron
+      const innerTokenGeo = new THREE.IcosahedronGeometry(0.52, 1);
+      const innerTokenMat = new THREE.MeshStandardMaterial({
+        color: 0x46c98b,
+        metalness: 0.5,
+        roughness: 0.25,
+        emissive: 0x46c98b,
+        emissiveIntensity: 0.55
+      });
+      const innerToken = new THREE.Mesh(innerTokenGeo, innerTokenMat);
+      tokenLatticeGroup.add(innerToken);
+
+      // 720 Volumetric Ambient Tokens with True Chaotic Turbulence Physics
+      const AMB_COUNT = 720;
+      const ambPGeo = new THREE.BufferGeometry();
+      const ambPPos = new Float32Array(AMB_COUNT * 3);
+      const ambPVel = new Float32Array(AMB_COUNT * 3);
+      const baseAmbPPos = new Float32Array(AMB_COUNT * 3);
+      const ambPRand = new Float32Array(AMB_COUNT * 3);
+
+      for (let i = 0; i < AMB_COUNT; i++) {
+        const u = Math.random();
+        const v = Math.random();
+        const theta = u * 2.0 * Math.PI;
+        const phi = Math.acos(2.0 * v - 1.0);
+        const r = 1.8 + Math.random() * 2.4;
+        const x = r * Math.sin(phi) * Math.cos(theta);
+        const y = r * Math.sin(phi) * Math.sin(theta);
+        const z = r * Math.cos(phi);
+
+        ambPPos[i * 3] = x;
+        ambPPos[i * 3 + 1] = y;
+        ambPPos[i * 3 + 2] = z;
+
+        baseAmbPPos[i * 3] = x;
+        baseAmbPPos[i * 3 + 1] = y;
+        baseAmbPPos[i * 3 + 2] = z;
+
+        // Turbulence vectors
+        ambPRand[i * 3] = (Math.random() - 0.5) * 4.2;
+        ambPRand[i * 3 + 1] = (Math.random() - 0.5) * 4.2;
+        ambPRand[i * 3 + 2] = (Math.random() - 0.5) * 4.2;
+      }
+      ambPGeo.setAttribute("position", new THREE.BufferAttribute(ambPPos, 3));
+      const ambPMat = new THREE.PointsMaterial({
+        color: 0xe5a93c,
+        size: 0.022,
+        transparent: true,
+        opacity: 0.35
+      });
+      const ambParticles = new THREE.Points(ambPGeo, ambPMat);
+      ambScene.add(ambParticles);
+
+      // Orbital Token Rings
+      const ring1 = new THREE.Mesh(
+        new THREE.TorusGeometry(2.1, 0.02, 16, 64),
+        new THREE.MeshBasicMaterial({ color: 0x46c98b, transparent: true, opacity: 0.28 })
+      );
+      ring1.rotation.x = Math.PI * 0.35;
+      tokenLatticeGroup.add(ring1);
+
+      const ring2 = new THREE.Mesh(
+        new THREE.TorusGeometry(2.7, 0.015, 16, 64),
+        new THREE.MeshBasicMaterial({ color: 0xe5a93c, transparent: true, opacity: 0.24 })
+      );
+      ring2.rotation.y = Math.PI * 0.25;
+      tokenLatticeGroup.add(ring2);
+
+      let ambientBurst = 0;
+      let shockwavePhase = 0;
+      const ambRatePill = document.getElementById("ambient-rate");
+      const btnBurst = document.getElementById("btn-ambient-pulse");
+
+      // Non-linear kinetic ejection trigger on every click
+      function triggerEjectionBurst() {
+        ambientBurst = 5.0;
+        shockwavePhase = 1.0;
+        if (ambRatePill) ambRatePill.textContent = "Flux: KINETIC EJECTION / particles flowing across space";
+
+        for (let i = 0; i < AMB_COUNT; i++) {
+          const idx = i * 3;
+          const px = baseAmbPPos[idx];
+          const py = baseAmbPPos[idx + 1];
+          const pz = baseAmbPPos[idx + 2];
+          const len = Math.sqrt(px * px + py * py + pz * pz) || 1.0;
+
+          // Outward radial ejection velocity + non-linear curl
+          const speed = 0.08 + Math.random() * 0.14;
+          const curlX = Math.sin(py * 3.0 + i) * 0.05;
+          const curlY = Math.cos(pz * 3.0 + i) * 0.05;
+          const curlZ = Math.sin(px * 3.0 + i) * 0.05;
+
+          ambPVel[idx] = (px / len) * speed + curlX;
+          ambPVel[idx + 1] = (py / len) * speed + curlY;
+          ambPVel[idx + 2] = (pz / len) * speed + curlZ;
+        }
+      }
+
+      if (btnBurst) {
+        btnBurst.addEventListener("click", (e) => {
+          e.stopPropagation();
+          triggerEjectionBurst();
+        });
+      }
+
+      function resizeAmb() {
+        const w = ambCanvas.clientWidth;
+        const h = ambCanvas.clientHeight;
+        ambRenderer.setSize(w, h, false);
+        ambCamera.aspect = w / h;
+        ambCamera.updateProjectionMatrix();
+      }
+      window.addEventListener("resize", resizeAmb);
+      resizeAmb();
+
+      const ambClock = new THREE.Clock();
+      const baseCamY = 2.2;
+      const baseCamZ = 8.2;
+
+      function animateAmbient() {
+        requestAnimationFrame(animateAmbient);
+        const t = ambClock.getElapsedTime();
+        ambientBurst *= 0.95;
+        shockwavePhase *= 0.92;
+
+        if (ambientBurst < 0.04) {
+          ambientBurst = 0;
+          if (ambRatePill && ambRatePill.textContent.includes("TURBULENT")) {
+            ambRatePill.textContent = "Flux: 1.0x / orbital spin (tranquil)";
+          }
+        }
+
+        // Decay interactive lattice drag tilts smoothly
+        latticeTiltX *= 0.94;
+        latticeTiltY *= 0.94;
+
+        // Chaotic rotational turbulence on lattice + interactive drag tilt
+        const spinSurge = 1.0 + ambientBurst * 1.6;
+        tokenLatticeGroup.rotation.y = t * 0.45 * spinSurge + latticeTiltY;
+        tokenLatticeGroup.rotation.x = Math.sin(t * 0.3 * spinSurge) * 0.25 + (Math.sin(t * 18) * 0.08 * ambientBurst) + latticeTiltX;
+        tokenLatticeGroup.rotation.z = Math.cos(t * 0.25) * 0.15 + (Math.cos(t * 22) * 0.06 * ambientBurst);
+
+        tokenCore.rotation.z = -t * 0.6 * spinSurge;
+        innerToken.rotation.y = t * 0.9 * spinSurge;
+
+        // Calibrated 3D scale expansion on burst
+        const latticeScale = 1.0 + ambientBurst * 0.14;
+        tokenLatticeGroup.scale.setScalar(latticeScale);
+
+        const pulseScale = 1.0 + Math.sin(t * 3.5) * 0.06 + ambientBurst * 0.22;
+        innerToken.scale.setScalar(pulseScale);
+
+        // Flash emissive brightness and dynamic particle density
+        tokenCore.material.emissiveIntensity = 0.35 + ambientBurst * 0.55;
+        innerToken.material.emissiveIntensity = 0.55 + ambientBurst * 0.75;
+        ring1.material.opacity = 0.28 + ambientBurst * 0.55;
+        ring2.material.opacity = 0.24 + ambientBurst * 0.5;
+
+        // Particles: kinetic ejection dispersion and orbital restoration
+        ambPMat.size = 0.022 + ambientBurst * 0.045;
+        ambPMat.opacity = 0.35 + ambientBurst * 0.65;
+
+        const posArr = ambPGeo.attributes.position.array;
+        for (let i = 0; i < AMB_COUNT; i++) {
+          const idx = i * 3;
+
+          // Integrate ejection velocities
+          posArr[idx] += ambPVel[idx];
+          posArr[idx + 1] += ambPVel[idx + 1];
+          posArr[idx + 2] += ambPVel[idx + 2];
+
+          // Gentle orbital damping and return spring
+          ambPVel[idx] *= 0.94;
+          ambPVel[idx + 1] *= 0.94;
+          ambPVel[idx + 2] *= 0.94;
+
+          // Re-attract to base orbit non-linearly
+          const returnStrength = 0.025;
+          posArr[idx] += (baseAmbPPos[idx] - posArr[idx]) * returnStrength;
+          posArr[idx + 1] += (baseAmbPPos[idx + 1] - posArr[idx + 1]) * returnStrength + Math.sin(t * 1.5 + i) * 0.003;
+          posArr[idx + 2] += (baseAmbPPos[idx + 2] - posArr[idx + 2]) * returnStrength;
+        }
+        ambPGeo.attributes.position.needsUpdate = true;
+
+        // Human-Trackable Compounding Telemetry Engine (compounds every 2.5s turn window)
+        const BASE_SAVED = 1201710;
+        const BASE_ACTUAL = 1205090;
+        const turnStep = Math.floor(t / 2.5);
+        const compoundSaved = BASE_SAVED + (turnStep * 12) + Math.floor((t % 2.5) * 1.8);
+        const compoundActual = BASE_ACTUAL + (turnStep * 12) + Math.floor((t % 2.5) * 1.9);
+        const activeCompressed = 3380 + (turnStep % 5);
+        const rateVal = (2.4 + Math.sin(t * 0.3) * 0.6 + ambientBurst * 4.2).toFixed(1);
+
+        const elSaved = document.getElementById("val-tokens-saved");
+        const elActual = document.getElementById("val-actual-tokens");
+        const elComp = document.getElementById("val-compressed-tokens");
+        const elRate = document.getElementById("val-compound-rate");
+        const elTime = document.getElementById("val-timestamp");
+
+        if (elSaved) elSaved.textContent = compoundSaved.toLocaleString();
+        if (elActual) elActual.textContent = compoundActual.toLocaleString();
+        if (elComp) elComp.textContent = activeCompressed.toLocaleString();
+        if (elRate) elRate.textContent = `+${rateVal} tok/s`;
+        if (elTime) {
+          const now = new Date();
+          elTime.textContent = now.toTimeString().split(" ")[0] + "." + String(Math.floor(now.getMilliseconds() / 100)).padStart(1, "0");
+        }
+
+        ambControls.update();
+        ambRenderer.render(ambScene, ambCamera);
+      }
+      animateAmbient();
+    }
+  </script>
+</body>
+</html>

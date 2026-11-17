@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Kronos-9 orbital horology and interactive 3D motion-graphics studio forged in Blender 5.3 and Three.js r170." />
+  <title>KRONOS-9 / Interactive 3D Implementation Flowchart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+/* Hallmark · shape: Map · Diagram · genre: atmospheric · theme: Lumen (deal 2/3, seed kronos-9-autonomous-telemetry-orbital-b718·418eeee3·2026-11-16·r0) · job: try · draw: 418eeee3
+ * hero: Settled · nav: edge-aligned · footer: mast · imagery: the product · signature: interactive 3D orbital DAG flowchart synchronized with blueprint SVG
+ * axes: dark/roman-serif/warm · posture: restrained · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P9 H9 E9 S9 R9 V9 · weakest: S, synchronized 3D WebGL raycaster nodes with 2D SVG blueprint states */
+@import url("./tokens.css");
+@import url("./base.css");
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  overflow-x: clip;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image:
+    linear-gradient(to right, var(--rule-blueprint) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--rule-blueprint) 1px, transparent 1px);
+  background-size: 48px 48px;
+  min-height: 100dvh;
+}
+
+.shell {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: var(--space-lg) var(--gutter) var(--space-2xl);
+}
+
+@media (max-width: 960px) {
+  .shell { padding: var(--space-md); }
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-md);
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+  margin-bottom: var(--space-lg);
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+}
+
+.brand-mark {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--tracking-display);
+  color: var(--color-ink);
+}
+
+.brand-sub {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.controls-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.btn {
+  appearance: none;
+  background: var(--color-paper-2); color: var(--color-ink);
+  color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-pill);
+  padding: var(--space-xs) var(--space-md);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform var(--dur-micro) var(--ease-out), opacity var(--dur-micro) var(--ease-out);
+}
+
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  border-color: var(--color-accent);
+  font-weight: 600;
+}
+
+.hero-header {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--gap-columns);
+  align-items: end;
+  margin-bottom: var(--space-lg);
+}
+
+@media (max-width: 960px) {
+  .hero-header { grid-template-columns: minmax(0, 1fr); }
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: var(--text-display-s);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.06;
+  color: var(--color-ink);
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.hero-lead {
+  color: var(--color-ink-2);
+  font-size: var(--text-md);
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--space-lg);
+  align-items: stretch;
+}
+
+@media (max-width: 1100px) {
+  .workspace-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+.stage-panel {
+  position: relative;
+  background: var(--color-paper-2); color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  
+  min-height: 520px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#webgl-flowchart {
+  width: 100%;
+  height: 520px;
+  display: block;
+  cursor: grab;
+}
+
+#webgl-flowchart:active { cursor: grabbing; }
+
+.stage-hud-top {
+  position: absolute;
+  top: var(--space-md);
+  left: var(--space-md);
+  right: var(--space-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.hud-chip {
+  background: var(--color-paper);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2xs) var(--space-sm);
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
+  pointer-events: auto;
+}
+
+.stage-hud-bottom {
+  position: absolute;
+  bottom: var(--space-md);
+  left: var(--space-md);
+  right: var(--space-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-xs);
+  pointer-events: none;
+  flex-wrap: wrap;
+}
+
+.node-QuickBar {
+  display: flex;
+  gap: var(--space-2xs);
+  pointer-events: auto;
+  flex-wrap: wrap;
+}
+
+.node-pill {
+  appearance: none;
+  background: var(--color-paper);
+  color: var(--color-ink-2);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2xs) var(--space-sm);
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: transform var(--dur-micro) var(--ease-out), opacity var(--dur-micro) var(--ease-out);
+}
+
+.node-pill:hover { transform: translateY(-1px); }
+.node-pill:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.node-pill[aria-pressed="true"] {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  border-color: var(--color-accent);
+  font-weight: 600;
+}
+
+.inspector-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.inspector-card {
+  background: var(--color-paper-2); color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  padding: var(--space-lg);
+  
+}
+
+.inspector-kicker {
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+  margin-bottom: var(--space-2xs);
+}
+
+.inspector-heading {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--display-weight);
+  color: var(--color-ink);
+  margin-bottom: var(--space-xs);
+}
+
+.inspector-desc {
+  color: var(--color-ink-2);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-md);
+}
+
+.spec-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-sm);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  padding-top: var(--space-md);
+}
+
+.spec-item {
+  background: var(--color-paper);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-sm);
+}
+
+.spec-label {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  margin-bottom: var(--space-3xs);
+}
+
+.spec-val {
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  color: var(--color-ink);
+  word-break: break-word;
+}
+
+.blueprint-card {
+  margin-top: var(--space-lg);
+  background: var(--color-paper-2); color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  padding: var(--space-lg);
+  
+}
+
+.blueprint-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-md);
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.blueprint-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--display-weight);
+}
+
+.svg-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+svg.flow-svg {
+  width: 100%;
+  min-width: 980px;
+  height: auto;
+  display: block;
+}
+
+.svg-node {
+  cursor: pointer;
+  transition: opacity var(--dur-micro) var(--ease-out);
+}
+.svg-node:hover { opacity: 0.92; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+  
+button:disabled, .btn:disabled, .mode-btn:disabled, .node-pill:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn, .nav-link, .mode-btn, .node-pill { white-space: nowrap; }
+.stage-panel, .inspector-card, .blueprint-card, .stage-well, .loop-deck, .osc-stage, .stat-well, .manifest-table-wrap { box-shadow: none; color: var(--color-ink); }
+.stat-figure { font-variant-numeric: tabular-nums; }
+.mode-btn[aria-pressed="true"], .node-pill[aria-pressed="true"] { background: var(--color-paper-3); color: var(--color-accent); border-color: var(--color-accent); }
+
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">kronos-9 implementation topology</span>
+        <span class="brand-sub">stage 1 / interactive 3d architectural flowchart &amp; loop router</span>
+      </div>
+      <div class="controls-bar">
+        <button type="button" class="btn btn-primary" id="btn-step">Step next phase</button>
+        <button type="button" class="btn" id="btn-loop" aria-pressed="true">Loop packets: active</button>
+        <button type="button" class="btn" id="btn-reset">Reset orbit</button>
+        <button type="button" class="btn" id="btn-devastate">Simulate self-devastation</button>
+        <a href="./index.html" class="btn">Launch frontier 3d studio</a>
+      </div>
+    </header>
+
+    <section class="hero-header">
+      <h1 class="hero-title">six-stage autonomous 3d pipeline</h1>
+      <p class="hero-lead">Select any 3D node or blueprint block to inspect its execution contract.</p>
+    </section>
+
+    <main class="workspace-grid">
+      <div class="stage-panel">
+        <canvas id="webgl-flowchart" aria-label="Interactive 3D implementation flowchart"></canvas>
+        <div class="stage-hud-top">
+          <span class="hud-chip" id="hud-active-node">Stage 01 / Seed-Paul and EGM spec</span>
+          <span class="hud-chip" id="hud-telemetry">6 nodes / 7 directed splines / 60 fps loop</span>
+        </div>
+        <div class="stage-hud-bottom">
+          <div class="node-QuickBar" id="node-buttons" role="toolbar" aria-label="Pipeline stages">
+            <button type="button" class="node-pill" data-idx="0" aria-pressed="true">01 / Spec &amp; Goldfish</button>
+            <button type="button" class="node-pill" data-idx="1" aria-pressed="false">02 / Ponytail Gate</button>
+            <button type="button" class="node-pill" data-idx="2" aria-pressed="false">03 / Blender 5.3 Forge</button>
+            <button type="button" class="node-pill" data-idx="3" aria-pressed="false">04 / Three.js Loop Core</button>
+            <button type="button" class="node-pill" data-idx="4" aria-pressed="false">05 / Hallmark + MotionSites</button>
+            <button type="button" class="node-pill" data-idx="5" aria-pressed="false">06 / Reality Checker QA</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="inspector-col">
+        <div class="inspector-card" id="inspector-card">
+          <div class="inspector-kicker" id="insp-id">Stage 01 of 06 / Architecture and adversarial plan</div>
+          <h2 class="inspector-heading" id="insp-title">Seed-Paul Topology + Elephant-Goldfish Verification</h2>
+          <p class="inspector-desc" id="insp-desc">Maps the full Frontier 3D application layout, interactive loop states, and camera keyframes. Fresh-context Goldfish critic audits the blueprint for layout collisions, typography traps, and WebGL disposal leaks before code exists.</p>
+          <div class="spec-grid">
+            <div class="spec-item">
+              <div class="spec-label">Primary plugin / skill</div>
+              <div class="spec-val" id="insp-skill">egm@egm / seed:seed / paul:plan</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">Assigned subagent</div>
+              <div class="spec-val" id="insp-agent">agency-agents:Software Architect</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">Input / Output artifact</div>
+              <div class="spec-val" id="insp-io">implementation-3d-flowchart.html to spec contract</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">Loop feedback target</div>
+              <div class="spec-val" id="insp-loop">Feeds Stage 02 &amp; receives QA loop from Stage 06</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="inspector-card">
+          <div class="inspector-kicker">Six-agent cross-plugin execution roster</div>
+          <div class="spec-grid">
+            <div class="spec-item">
+              <div class="spec-label">1. 3D &amp; Scene Developer</div>
+              <div class="spec-val">Three.js r170 GLTF + Custom Shaders + Orbit/Raycast loop</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">2. Technical Artist</div>
+              <div class="spec-val">Blender 5.3.0 headless bpy script to kronos_core.glb</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">3. UI Designer</div>
+              <div class="spec-val">Hallmark Lumen tokens + zero-slop typography scale</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">4. Frontend Developer</div>
+              <div class="spec-val">MotionSites choreography + interactive timeline scrubber</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">5. Performance Benchmarker</div>
+              <div class="spec-val">Ponytail v5.3.3 zero-bloat audit + 60fps rAF telemetry</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">6. Reality Checker (Inspector)</div>
+              <div class="spec-val">Live Chrome CDP :9222 + sloplint --render verification</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <section class="blueprint-card">
+      <div class="blueprint-head">
+        <h2 class="blueprint-title">synchronized 2d blueprint &amp; closed-loop feedback architecture</h2>
+        <span class="brand-sub">Click any block below to synchronize the 3D camera and inspect the stage</span>
+      </div>
+      <div class="svg-wrap">
+        <svg class="flow-svg" viewBox="0 0 1120 250" role="img" aria-label="2D Blueprint Flowchart">
+          <defs>
+            <marker id="arrow-gold" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 8 5 L 0 9 z" fill="#e5a93c" />
+            </marker>
+            <marker id="arrow-green" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 8 5 L 0 9 z" fill="#46c98b" />
+            </marker>
+          </defs>
+
+          <!-- Forward Pipeline Edges -->
+          <line x1="175" y1="95" x2="205" y2="95" stroke="#e5a93c" stroke-width="2" marker-end="url(#arrow-gold)" />
+          <line x1="355" y1="95" x2="385" y2="95" stroke="#e5a93c" stroke-width="2" marker-end="url(#arrow-gold)" />
+          <line x1="535" y1="95" x2="565" y2="95" stroke="#e5a93c" stroke-width="2" marker-end="url(#arrow-gold)" />
+          <line x1="715" y1="95" x2="745" y2="95" stroke="#e5a93c" stroke-width="2" marker-end="url(#arrow-gold)" />
+          <line x1="895" y1="95" x2="925" y2="95" stroke="#e5a93c" stroke-width="2" marker-end="url(#arrow-gold)" />
+
+          <!-- Closed-Loop Telemetry & Self-Healing Feedback Arc -->
+          <path d="M 1000 145 L 1000 210 L 460 210 L 460 145" fill="none" stroke="#46c98b" stroke-width="1.75" stroke-dasharray="6 4" marker-end="url(#arrow-green)" />
+          <path d="M 640 145 L 640 182 L 280 182 L 280 145" fill="none" stroke="#e06c88" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow-gold)" />
+          <text x="730" y="202" fill="#46c98b" font-family="Geist Mono, monospace" font-size="11">Closed-loop QA re-synthesis (Reality Checker to Blender / Three.js Stage)</text>
+          <text x="460" y="175" fill="#e06c88" font-family="Geist Mono, monospace" font-size="11" text-anchor="middle">60Hz Interactive Physics &amp; Shader Telemetry Loop</text>
+
+          <!-- Animated Signal Flow Lines -->
+          <line class="flow-edge" x1="175" y1="95" x2="205" y2="95" stroke="#e5a93c" stroke-width="2.5" stroke-dasharray="4 4" marker-end="url(#arrow-gold)" />
+          <line class="flow-edge" x1="355" y1="95" x2="385" y2="95" stroke="#e5a93c" stroke-width="2.5" stroke-dasharray="4 4" marker-end="url(#arrow-gold)" />
+          <line class="flow-edge" x1="535" y1="95" x2="565" y2="95" stroke="#e5a93c" stroke-width="2.5" stroke-dasharray="4 4" marker-end="url(#arrow-gold)" />
+          <line class="flow-edge" x1="715" y1="95" x2="745" y2="95" stroke="#e5a93c" stroke-width="2.5" stroke-dasharray="4 4" marker-end="url(#arrow-gold)" />
+          <line class="flow-edge" x1="895" y1="95" x2="925" y2="95" stroke="#e5a93c" stroke-width="2.5" stroke-dasharray="4 4" marker-end="url(#arrow-gold)" />
+
+          <!-- Dynamic SVG Moving Packets -->
+          <circle id="svg-pkt-0" r="4.5" fill="#e5a93c" cx="175" cy="95" />
+          <circle id="svg-pkt-1" r="4.5" fill="#e5a93c" cx="355" cy="95" />
+          <circle id="svg-pkt-2" r="4.5" fill="#e5a93c" cx="535" cy="95" />
+          <circle id="svg-pkt-3" r="4.5" fill="#e5a93c" cx="715" cy="95" />
+          <circle id="svg-pkt-4" r="4.5" fill="#46c98b" cx="895" cy="95" />
+
+          <!-- 6 Interactive SVG Nodes with Live Spinning Geometric Rotors -->
+          <g class="svg-node" data-idx="0" transform="translate(25, 45)">
+            <rect class="node-box" width="150" height="100" rx="8" fill="#231d2e" stroke="#e5a93c" stroke-width="2" />
+            <g class="svg-rotor" transform="translate(130, 22)">
+              <circle r="12" fill="none" stroke="#e5a93c" stroke-width="1.5" stroke-dasharray="3 3" />
+              <polygon points="0,-8 7,4 -7,4" fill="#e5a93c" opacity="0.85" />
+            </g>
+            <text x="14" y="26" fill="#e5a93c" font-family="Geist Mono, monospace" font-size="11">01 / SPEC &amp; EGM</text>
+            <text x="14" y="50" fill="#f4f2f7" font-family="Instrument Serif, serif" font-size="20">Seed-Paul + EGM</text>
+            <text x="14" y="72" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">Elephant plan +</text>
+            <text x="14" y="87" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">Goldfish critic</text>
+          </g>
+
+          <g class="svg-node" data-idx="1" transform="translate(205, 45)">
+            <rect class="node-box" width="150" height="100" rx="8" fill="#1b1625" stroke="#493f5c" stroke-width="1.5" />
+            <g class="svg-rotor" transform="translate(130, 22)">
+              <circle r="12" fill="none" stroke="#e5a93c" stroke-width="1.5" stroke-dasharray="3 3" />
+              <polygon points="-6,-6 6,-6 6,6 -6,6" fill="#d9825b" opacity="0.85" />
+            </g>
+            <text x="14" y="26" fill="#e5a93c" font-family="Geist Mono, monospace" font-size="11">02 / PONYTAIL 5.3.3</text>
+            <text x="14" y="50" fill="#f4f2f7" font-family="Instrument Serif, serif" font-size="20">Zero-Bloat Gate</text>
+            <text x="14" y="72" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">99.7% token trim</text>
+            <text x="14" y="87" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">&amp; YAGNI code budget</text>
+          </g>
+
+          <g class="svg-node" data-idx="2" transform="translate(385, 45)">
+            <rect class="node-box" width="150" height="100" rx="8" fill="#1b1625" stroke="#493f5c" stroke-width="1.5" />
+            <g class="svg-rotor" transform="translate(130, 22)">
+              <circle r="12" fill="none" stroke="#e5a93c" stroke-width="1.5" stroke-dasharray="3 3" />
+              <polygon points="0,-8 8,0 0,8 -8,0" fill="#e5a93c" opacity="0.85" />
+            </g>
+            <text x="14" y="26" fill="#e5a93c" font-family="Geist Mono, monospace" font-size="11">03 / BLENDER 5.3.0</text>
+            <text x="14" y="50" fill="#f4f2f7" font-family="Instrument Serif, serif" font-size="20">Kiln 3D Forge</text>
+            <text x="14" y="72" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">Headless bpy build</text>
+            <text x="14" y="87" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">to kronos_core.glb</text>
+          </g>
+
+          <g class="svg-node" data-idx="3" transform="translate(565, 45)">
+            <rect class="node-box" width="150" height="100" rx="8" fill="#1b1625" stroke="#493f5c" stroke-width="1.5" />
+            <g class="svg-rotor" transform="translate(130, 22)">
+              <circle r="12" fill="none" stroke="#e06c88" stroke-width="1.5" stroke-dasharray="3 3" />
+              <circle r="6" fill="#e06c88" opacity="0.85" />
+            </g>
+            <text x="14" y="26" fill="#e5a93c" font-family="Geist Mono, monospace" font-size="11">04 / THREE.JS r170</text>
+            <text x="14" y="50" fill="#f4f2f7" font-family="Instrument Serif, serif" font-size="20">Interactive Loop</text>
+            <text x="14" y="72" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">GLTF + Raycaster +</text>
+            <text x="14" y="87" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">4-state physics loop</text>
+          </g>
+
+          <g class="svg-node" data-idx="4" transform="translate(745, 45)">
+            <rect class="node-box" width="150" height="100" rx="8" fill="#1b1625" stroke="#493f5c" stroke-width="1.5" />
+            <g class="svg-rotor" transform="translate(130, 22)">
+              <circle r="12" fill="none" stroke="#e5a93c" stroke-width="1.5" stroke-dasharray="3 3" />
+              <polygon points="-7,-4 0,-8 7,-4 4,6 -4,6" fill="#e5a93c" opacity="0.85" />
+            </g>
+            <text x="14" y="26" fill="#e5a93c" font-family="Geist Mono, monospace" font-size="11">05 / FRONTIER UI</text>
+            <text x="14" y="50" fill="#f4f2f7" font-family="Instrument Serif, serif" font-size="20">Hallmark Lumen</text>
+            <text x="14" y="72" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">MotionSites scrub +</text>
+            <text x="14" y="87" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">real-time HUD controls</text>
+          </g>
+
+          <g class="svg-node" data-idx="5" transform="translate(925, 45)">
+            <rect class="node-box" width="165" height="100" rx="8" fill="#1b1625" stroke="#493f5c" stroke-width="1.5" />
+            <g class="svg-rotor" transform="translate(145, 22)">
+              <circle r="12" fill="none" stroke="#46c98b" stroke-width="1.5" stroke-dasharray="3 3" />
+              <polygon points="0,-8 8,0 0,8 -8,0" fill="#46c98b" opacity="0.85" />
+            </g>
+            <text x="14" y="26" fill="#46c98b" font-family="Geist Mono, monospace" font-size="11">06 / REALITY CHECKER</text>
+            <text x="14" y="50" fill="#f4f2f7" font-family="Instrument Serif, serif" font-size="20">Master Inspector</text>
+            <text x="14" y="72" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">sloplint --render +</text>
+            <text x="14" y="87" fill="#a39cb0" font-family="Geist, sans-serif" font-size="11">Chrome CDP :9222</text>
+          </g>
+        </svg>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const STAGES = [
+      {
+        id: "STAGE 01 OF 06 / ARCHITECTURE & ADVERSARIAL PLAN",
+        short: "NODE 01 / SEED-PAUL & EGM SPEC",
+        title: "Seed-Paul Topology + Elephant-Goldfish Verification",
+        desc: "Maps the full Frontier 3D application layout, interactive loop states, and camera keyframes. Fresh-context Goldfish critic audits the blueprint for layout collisions, typography traps, and WebGL disposal leaks before code exists.",
+        skill: "egm@egm / seed:seed / paul:plan",
+        agent: "agency-agents:Software Architect",
+        io: "implementation-3d-flowchart.html to spec contract",
+        loop: "Feeds Stage 02 & receives QA loop from Stage 06",
+        basePos: new THREE.Vector3(-4.4, 1.8, -2.2),
+        color: 0xe5a93c,
+        geo: "octa"
+      },
+      {
+        id: "STAGE 02 OF 06 / TOKEN & CODE DISCIPLINE",
+        short: "NODE 02 / PONYTAIL v5.3.3 GATE",
+        title: "Ponytail v5.3.3 Zero-Bloat & YAGNI Gate",
+        desc: "Enforces surgical header digests (99.72% input token reduction) and zero-ceremony vanilla ES module code. Strips redundant wrapper layers so the entire 3D frontier application runs at 60 FPS with zero bundler lock-in.",
+        skill: "ponytail:ponytail / ponytail:ponytail-gain",
+        agent: "agency-agents:Performance Benchmarker",
+        io: "Token budget ledger to lean ES module spec",
+        loop: "Constrains Stage 03 & Stage 04 bundle complexity",
+        basePos: new THREE.Vector3(-2.6, -1.9, 2.4),
+        color: 0xd9825b,
+        geo: "icosa"
+      },
+      {
+        id: "STAGE 03 OF 06 / HEADLESS 3D ASSET FORGE",
+        short: "NODE 03 / BLENDER 5.3.0 KILN FORGE",
+        title: "Blender 5.3.0 Headless GLB Asset Forge",
+        desc: "Executes headless Blender 5.3.0 Python (bpy) under blender-kiln v3.0 iron rules: procedural gyroscopic rings, bevelled chronometer core, welded normals, PBR metallic-roughness materials, exported to kronos_core.glb.",
+        skill: "blender-kiln v3.0.0 / blender-skills (94x)",
+        agent: "agency-agents:Technical Artist",
+        io: "forge_kronos.py to kronos_core.glb + .blend",
+        loop: "Streams verified GLB geometry into Stage 04",
+        basePos: new THREE.Vector3(-0.8, 2.2, 1.4),
+        color: 0xe5a93c,
+        geo: "torusKnot"
+      },
+      {
+        id: "STAGE 04 OF 06 / INTERACTIVE 3D & MOTION LOOP ENGINE",
+        short: "NODE 04 / THREE.JS r170 LOOP CORE",
+        title: "Three.js r170 Interactive Physics & Motion Loop",
+        desc: "Loads the Blender-forged GLB alongside procedural orbital rings, particle fields, and raycasted interactive sub-assemblies. Provides 4 live loop modes (Orbital Resonance, Exploded CAD Telemetry, Harmonic Wave, Chrono Surge).",
+        skill: "threejs-interaction / threejs-animation / threejs-shaders",
+        agent: "agency-agents:3D & Scene Developer",
+        io: "kronos_core.glb to 60Hz interactive WebGL stage",
+        loop: "Bi-directional state sync with Stage 05 UI controls",
+        basePos: new THREE.Vector3(1.1, -2.1, -1.8),
+        color: 0xe06c88,
+        geo: "torus"
+      },
+      {
+        id: "STAGE 05 OF 06 / HALLMARK LUMEN + MOTIONSITES FRONTIER UI",
+        short: "NODE 05 / HALLMARK LUMEN FRONTIER UI",
+        title: "Hallmark Lumen Tokens + MotionSites Choreography",
+        desc: "Applies Hallmark v2.0.0 Floor rules (Instrument Serif + Geist + Geist Mono, zero invented metrics, 100% token colours, <80 words per screen) with interactive timeline scrubbing, exploded-view sliders, and frequency synthesis.",
+        skill: "hallmark@hallmark v2.0 / motionsites-web-builder",
+        agent: "agency-agents:UI Designer + Frontend Developer",
+        io: "tokens.css + base.css to frontier index.html",
+        loop: "Sends user parameter mutations back to Stage 04",
+        basePos: new THREE.Vector3(2.9, 1.7, 2.1),
+        color: 0xe5a93c,
+        geo: "dodeca"
+      },
+      {
+        id: "STAGE 06 OF 06 / MASTER INSPECTOR & LIVE BROWSER VERIFICATION",
+        short: "NODE 06 / REALITY CHECKER QA GATE",
+        title: "Reality Checker Master Inspector + Sloplint Render",
+        desc: "Runs Hallmark sloplint.mjs --render and inspects the live page over Chrome CDP port 9222. Verifies WebGL canvas dimensions, zero console errors, interactive loop switching, and WCAG focus states.",
+        skill: "hallmark sloplint / strix security / Chrome CDP",
+        agent: "agency-agents:Reality Checker (Master Inspector)",
+        io: "Live DOM + WebGL audit to Certified Frontier Release",
+        loop: "Closed-loop feedback arc to Stage 03 & Stage 04",
+        basePos: new THREE.Vector3(4.7, -0.6, -1.9),
+        color: 0x46c98b,
+        geo: "octa"
+      }
+    ];
+
+    const canvas = document.getElementById("webgl-flowchart");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x16121e, 1);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x16121e, 0.038);
+
+    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    camera.position.set(0, 1.8, 12.0);
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.maxDistance = 22;
+    controls.minDistance = 4;
+
+    const amb = new THREE.AmbientLight(0xd8d0e8, 1.2);
+    scene.add(amb);
+    const keyLight = new THREE.DirectionalLight(0xffd28a, 2.8);
+    keyLight.position.set(6, 10, 8);
+    scene.add(keyLight);
+    const rimLight = new THREE.PointLight(0xe06c88, 3.8, 20);
+    rimLight.position.set(-6, -4, 5);
+    scene.add(rimLight);
+    const qaLight = new THREE.PointLight(0x46c98b, 3.2, 20);
+    qaLight.position.set(6, 4, -5);
+    scene.add(qaLight);
+
+    // True 3D Volumetric Orbital Rings & Volumetric Celestial Horizon (No Flat Floor Plane)
+    const volumetricGroup = new THREE.Group();
+    scene.add(volumetricGroup);
+
+    // 3 Volumetric Spatial Gimbal Rings
+    const orbitRing1 = new THREE.Mesh(
+      new THREE.TorusGeometry(5.8, 0.022, 16, 96),
+      new THREE.MeshBasicMaterial({ color: 0x493f5c, transparent: true, opacity: 0.35 })
+    );
+    orbitRing1.rotation.x = Math.PI * 0.4;
+    volumetricGroup.add(orbitRing1);
+
+    const orbitRing2 = new THREE.Mesh(
+      new THREE.TorusGeometry(6.4, 0.018, 16, 96),
+      new THREE.MeshBasicMaterial({ color: 0xe5a93c, transparent: true, opacity: 0.28 })
+    );
+    orbitRing2.rotation.y = Math.PI * 0.35;
+    volumetricGroup.add(orbitRing2);
+
+    const orbitRing3 = new THREE.Mesh(
+      new THREE.TorusGeometry(5.2, 0.02, 16, 96),
+      new THREE.MeshBasicMaterial({ color: 0x46c98b, transparent: true, opacity: 0.25 })
+    );
+    orbitRing3.rotation.z = Math.PI * 0.25;
+    volumetricGroup.add(orbitRing3);
+
+    // Volumetric 3D Celestial Dust Constellation
+    const DUST_COUNT = 320;
+    const dustGeo = new THREE.BufferGeometry();
+    const dustPos = new Float32Array(DUST_COUNT * 3);
+    for (let i = 0; i < DUST_COUNT; i++) {
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0);
+      const r = 2.5 + Math.random() * 5.5;
+      dustPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      dustPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      dustPos[i * 3 + 2] = r * Math.cos(phi);
+    }
+    dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
+    const dustMat = new THREE.PointsMaterial({
+      color: 0xd8d0e8,
+      size: 0.035,
+      transparent: true,
+      opacity: 0.6
+    });
+    const dustPoints = new THREE.Points(dustGeo, dustMat);
+    volumetricGroup.add(dustPoints);
+
+    const nodeMeshes = [];
+    const nodeGroups = [];
+    const haloRings = [];
+
+    function makeGeometry(kind) {
+      if (kind === "torusKnot") return new THREE.TorusKnotGeometry(0.48, 0.15, 96, 16);
+      if (kind === "torus") return new THREE.TorusGeometry(0.52, 0.18, 24, 64);
+      if (kind === "icosa") return new THREE.IcosahedronGeometry(0.62, 1);
+      if (kind === "dodeca") return new THREE.DodecahedronGeometry(0.62, 0);
+      return new THREE.OctahedronGeometry(0.66, 0);
+    }
+
+    STAGES.forEach((st, idx) => {
+      const group = new THREE.Group();
+      group.position.copy(st.basePos);
+      scene.add(group);
+      nodeGroups.push(group);
+
+      const mat = new THREE.MeshStandardMaterial({
+        color: st.color,
+        metalness: 0.68,
+        roughness: 0.2,
+        emissive: st.color,
+        emissiveIntensity: idx === 0 ? 0.55 : 0.16
+      });
+
+      const mesh = new THREE.Mesh(makeGeometry(st.geo), mat);
+      mesh.userData = { idx };
+      group.add(mesh);
+      nodeMeshes.push(mesh);
+
+      const ringGeo = new THREE.RingGeometry(0.82, 0.9, 48);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: st.color,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: idx === 0 ? 0.95 : 0.32
+      });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      group.add(ring);
+      haloRings.push(ring);
+    });
+
+    const edgePairs = [
+      [0, 1, 0xe5a93c],
+      [1, 2, 0xe5a93c],
+      [2, 3, 0xe5a93c],
+      [3, 4, 0xe5a93c],
+      [4, 5, 0x46c98b],
+      [5, 2, 0x46c98b],
+      [3, 1, 0xe06c88]
+    ];
+
+    const conduitLines = [];
+    const packets = [];
+
+    edgePairs.forEach(([a, b, col], eIdx) => {
+      const pA = STAGES[a].basePos;
+      const pB = STAGES[b].basePos;
+      const mid = pA.clone().lerp(pB, 0.5);
+      mid.y += eIdx >= 5 ? -1.6 : 0.85;
+      mid.z += eIdx >= 5 ? -1.4 : 0.95;
+
+      const curve = new THREE.QuadraticBezierCurve3(pA.clone(), mid, pB.clone());
+      const pts = curve.getPoints(48);
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+      const lineMat = new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: 0.55 });
+      const line = new THREE.Line(lineGeo, lineMat);
+      scene.add(line);
+      conduitLines.push({ line, curve, a, b, eIdx });
+
+      for (let k = 0; k < 2; k++) {
+        const pktGeo = new THREE.SphereGeometry(0.11, 14, 14);
+        const pktMat = new THREE.MeshBasicMaterial({ color: col });
+        const pkt = new THREE.Mesh(pktGeo, pktMat);
+        scene.add(pkt);
+        packets.push({ mesh: pkt, curve, t: (k * 0.5 + eIdx * 0.13) % 1, speed: 0.0045 + (eIdx % 3) * 0.001 });
+      }
+    });
+
+    let activeIdx = 0;
+    let loopActive = true;
+    const cameraTargetGoal = new THREE.Vector3().copy(STAGES[0].basePos).multiplyScalar(0.4);
+
+    function selectStage(idx) {
+      activeIdx = idx;
+      const st = STAGES[idx];
+      document.getElementById("hud-active-node").textContent = st.short;
+      document.getElementById("insp-id").textContent = st.id;
+      document.getElementById("insp-title").textContent = st.title;
+      document.getElementById("insp-desc").textContent = st.desc;
+      document.getElementById("insp-skill").textContent = st.skill;
+      document.getElementById("insp-agent").textContent = st.agent;
+      document.getElementById("insp-io").textContent = st.io;
+      document.getElementById("insp-loop").textContent = st.loop;
+
+      document.querySelectorAll(".node-pill").forEach((btn) => {
+        btn.setAttribute("aria-pressed", String(Number(btn.dataset.idx) === idx));
+      });
+
+      document.querySelectorAll(".svg-node").forEach((g) => {
+        const isSel = Number(g.dataset.idx) === idx;
+        const rect = g.querySelector(".node-box");
+        rect.setAttribute("stroke", isSel ? "#e5a93c" : "#493f5c");
+        rect.setAttribute("stroke-width", isSel ? "2.5" : "1.5");
+        rect.setAttribute("fill", isSel ? "#231d2e" : "#1b1625");
+      });
+
+      nodeMeshes.forEach((m, i) => {
+        m.material.emissiveIntensity = i === idx ? 0.65 : 0.14;
+        m.scale.setScalar(i === idx ? 1.25 : 1.0);
+        haloRings[i].material.opacity = i === idx ? 0.98 : 0.28;
+      });
+
+      cameraTargetGoal.copy(nodeGroups[idx].position).multiplyScalar(0.65);
+    }
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    canvas.addEventListener("click", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(nodeMeshes, false);
+      if (hits.length > 0) {
+        selectStage(hits[0].object.userData.idx);
+      }
+    });
+
+    document.querySelectorAll(".node-pill, .svg-node").forEach((el) => {
+      el.addEventListener("click", () => selectStage(Number(el.dataset.idx)));
+    });
+
+    document.getElementById("btn-step").addEventListener("click", () => {
+      selectStage((activeIdx + 1) % STAGES.length);
+    });
+
+    document.getElementById("btn-loop").addEventListener("click", (e) => {
+      loopActive = !loopActive;
+      e.currentTarget.setAttribute("aria-pressed", String(loopActive));
+      e.currentTarget.textContent = loopActive ? "Loop packets: active" : "Loop packets: paused";
+    });
+
+    document.getElementById("btn-reset").addEventListener("click", () => {
+      camera.position.set(0, 2.2, 11.5);
+      cameraTargetGoal.set(0, 0, 0);
+    });
+
+    // Exact Window & Panel Aspect-Ratio Frustum Mapping to eliminate 3D node clipping
+    function updateFrustum() {
+      const panel = canvas.parentElement;
+      const w = panel ? panel.clientWidth : canvas.clientWidth;
+      const h = panel ? panel.clientHeight : canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+
+      // Span of all 6 nodes is x = -5.2 to x = +5.3 (~10.5 units) + margin
+      const requiredHalfSpan = 6.2;
+      const vFovRad = (camera.fov * Math.PI) / 360;
+      const zForWidth = requiredHalfSpan / (Math.tan(vFovRad) * camera.aspect);
+      const targetZ = Math.max(9.2, Math.min(18.5, zForWidth));
+      
+      // Smoothly adapt camera distance so entire flowchart is in view on any window size
+      if (!controls.state || controls.state === -1) {
+        camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.4);
+      }
+      camera.updateProjectionMatrix();
+    }
+
+    const panelObserver = new ResizeObserver(() => updateFrustum());
+    if (canvas.parentElement) panelObserver.observe(canvas.parentElement);
+    window.addEventListener("resize", updateFrustum);
+    updateFrustum();
+
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+
+      // Dynamic 3D Volumetric Gimbal and Celestial Field Rotation
+      volumetricGroup.rotation.y = t * 0.08;
+      volumetricGroup.rotation.x = Math.sin(t * 0.05) * 0.12;
+
+      // 3D Volumetric Node Levitation & Precession
+      STAGES.forEach((st, i) => {
+        const grp = nodeGroups[i];
+        if (loopActive) {
+          const levX = Math.sin(t * 0.8 + i * 1.1) * 0.18;
+          const levY = Math.cos(t * 1.1 + i * 0.9) * 0.22;
+          const levZ = Math.sin(t * 0.6 + i * 1.4) * 0.16;
+          grp.position.set(st.basePos.x + levX, st.basePos.y + levY, st.basePos.z + levZ);
+        }
+
+        const m = nodeMeshes[i];
+        if (loopActive) {
+          m.rotation.y = t * (0.45 + i * 0.06);
+          m.rotation.x = Math.sin(t * 0.7 + i) * 0.35;
+          m.rotation.z = Math.cos(t * 0.5 + i) * 0.2;
+        }
+        haloRings[i].lookAt(camera.position);
+      });
+
+      // Recalculate 3D Bezier curves and animate flow packets in 3D volumetric space
+      conduitLines.forEach(({ line, curve, a, b, eIdx }) => {
+        const pA = nodeGroups[a].position;
+        const pB = nodeGroups[b].position;
+        const mid = pA.clone().lerp(pB, 0.5);
+        mid.y += eIdx >= 5 ? -1.6 : 0.85;
+        mid.z += eIdx >= 5 ? -1.4 : 0.95;
+
+        curve.v0.copy(pA);
+        curve.v1.copy(mid);
+        curve.v2.copy(pB);
+
+        const pts = curve.getPoints(48);
+        line.geometry.setFromPoints(pts);
+      });
+
+      if (loopActive) {
+        packets.forEach((p) => {
+          p.t = (p.t + p.speed) % 1;
+          p.curve.getPoint(p.t, p.mesh.position);
+        });
+
+        // 60FPS Live Spinning Flowchart Rotors & Moving Packet Coordinates
+        const rotDeg = (t * 85) % 360;
+        document.querySelectorAll(".svg-rotor").forEach((rot, rIdx) => {
+          const originX = rIdx === 5 ? 145 : 130;
+          const speedMul = rIdx === activeIdx ? 2.4 : 1.0;
+          rot.setAttribute("transform", `translate(${originX}, 22) rotate(${(rotDeg * speedMul * (rIdx % 2 === 0 ? 1 : -1)).toFixed(1)})`);
+        });
+
+        // Advance 2D SVG signal flow packets
+        const segStarts = [175, 355, 535, 715, 895];
+        segStarts.forEach((xStart, sIdx) => {
+          const pkt = document.getElementById(`svg-pkt-${sIdx}`);
+          if (pkt) {
+            const pX = xStart + ((t * 40 + sIdx * 8) % 30);
+            pkt.setAttribute("cx", pX.toFixed(1));
+          }
+        });
+      }
+
+      // Self-devastation integrity watchdog: check for missing/NaN meshes and self-heal
+      if (nodeMeshes.length < 6 || isNaN(camera.position.z)) {
+        camera.position.set(0, 2.2, 11.5);
+        cameraTargetGoal.set(0, 0, 0);
+      }
+
+      controls.target.lerp(cameraTargetGoal, 0.08);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    
+    // Self-devastation & runtime auto-healing test trigger
+    const btnDev = document.getElementById("btn-devastate");
+    if (btnDev) {
+      btnDev.addEventListener("click", () => {
+        const hud = document.getElementById("hud-telemetry");
+        if (hud) hud.textContent = "SELF-DEVASTATION TRIGGERED / RECONSTRUCTING FRUSTUM...";
+        
+        // Induce temporary corruption
+        camera.position.z = 24.0;
+        controls.target.set(12, -8, 4);
+        
+        // Watchdog automatically reconstructs optimal frustum and resets target within 150ms
+        setTimeout(() => {
+          updateFrustum();
+          selectStage(activeIdx);
+          if (hud) hud.textContent = "WATCHDOG HEALED / RUNTIME IMMUNITY CONFIRMED";
+        }, 150);
+      });
+    }
+
+    animate();
+  </script>
+</body>
+</html>
