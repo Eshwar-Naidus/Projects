@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fable 5.1 Agentic OS · 3D Interactive Spatial Blueprint</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+  <!-- CDNs for 3D Motion & Physics Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --paper: #0b0d13;
+      --paper-card: rgba(22, 26, 38, 0.72);
+      --paper-glass: rgba(255, 255, 255, 0.04);
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --soft: #64748b;
+      --accent: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.28);
+      --link: #38bdf8;
+      --l1-col: #10b981;
+      --l2-col: #8b5cf6;
+      --l3-col: #f59e0b;
+      --l4-col: #ec4899;
+      --l5-col: #38bdf8;
+      --rule: rgba(255, 255, 255, 0.1);
+      --specular: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.02) 100%);
+      --sans: 'Geist', system-ui, -apple-system, sans-serif;
+      --serif: 'Instrument Serif', serif;
+      --mono: 'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      overflow-x: hidden;
+      padding: 1.5rem;
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+    }
+
+    .frame {
+      width: 100%;
+      max-width: 1380px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Top HUD Header */
+    .hud-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1.4rem;
+      background: var(--paper-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      position: relative;
+    }
+    .hud-bar::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: var(--specular);
+      border-radius: 12px 12px 0 0;
+    }
+    .hud-title-wrap { display: flex; flex-direction: column; gap: 0.2rem; }
+    .eyebrow {
+      color: var(--accent);
+      font: 600 0.7rem var(--mono);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2s infinite ease-in-out;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+    h1 {
+      font: 400 clamp(1.4rem, 2vw + 0.6rem, 2rem)/1.15 var(--serif);
+      letter-spacing: -0.015em;
+      color: #fff;
+    }
+
+    .hud-stats {
+      display: flex;
+      gap: 1.25rem;
+    }
+    .hud-pill {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--rule);
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      font: 500 0.72rem var(--mono);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .hud-pill span.num { color: var(--ink); font-weight: 600; }
+
+    /* Interactive Channel Switcher (5 Levels) */
+    .channel-strip {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
+    }
+    .channel-btn {
+      background: var(--paper-card);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      color: var(--muted);
+      font: 500 0.75rem var(--mono);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .channel-btn span.tag { font-size: 0.62rem; opacity: 0.7; letter-spacing: 0.08em; }
+    .channel-btn:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.22);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    .channel-btn.active {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.18);
+    }
+    .channel-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent);
+    }
+
+    /* 3D Viewport Stage Container */
+    .viewport-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.25rem;
+      min-height: 560px;
+    }
+
+    .canvas-container {
+      position: relative;
+      background: #06080e;
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 560px;
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+    }
+    #three-viewport {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .canvas-overlay-ui {
+      position: absolute;
+      top: 14px; left: 16px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .camera-hud {
+      font: 500 0.68rem var(--mono);
+      color: rgba(255,255,255,0.5);
+      background: rgba(0,0,0,0.6);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.08);
+      display: inline-block;
+    }
+    .orbit-controls-hint {
+      position: absolute;
+      bottom: 14px; right: 16px;
+      font: 400 0.68rem var(--mono);
+      color: var(--soft);
+      background: rgba(0,0,0,0.6);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.08);
+      pointer-events: none;
+    }
+
+    /* Side Telemetry & Live Inspection Dock */
+    .side-dock {
+      background: var(--paper-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      position: relative;
+    }
+    .dock-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 0.65rem;
+    }
+    .dock-title {
+      font: 600 0.82rem var(--sans);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .badge {
+      font: 600 0.62rem var(--mono);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    .badge-btn {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .badge-btn:hover {
+      background: var(--accent);
+      color: #000;
+    }
+    .dock-content {
+      font: 400 0.78rem/1.55 var(--sans);
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .dock-stat-box {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .stat-label { font: 500 0.68rem var(--mono); color: var(--soft); text-transform: uppercase; }
+    .stat-val { font: 600 1rem var(--mono); color: #fff; }
+    .stat-bar {
+      height: 4px;
+      width: 100%;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 0.2rem;
+    }
+    .stat-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 78%;
+      transition: width 0.6s ease;
+    }
+
+    .mutation-trigger-btn {
+      margin-top: auto;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.05) 100%);
+      border: 1px solid var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.75rem;
+      font: 600 0.75rem var(--mono);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+    .mutation-trigger-btn:hover {
+      background: var(--accent);
+      color: #000;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    /* Multi-Palette Dock & Suite Grid */
+    .suite-palette-bar {
+      display: flex;
+      gap: 0.5rem;
+      background: var(--paper-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      padding: 0.4rem;
+      overflow-x: auto;
+    }
+    .palette-tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 0.5rem 0.9rem;
+      border-radius: 6px;
+      font: 600 0.72rem var(--mono);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .palette-tab-btn:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.03);
+    }
+    .palette-tab-btn.active {
+      color: #000;
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .multi-palette-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .palette-panel {
+      display: none;
+      background: var(--paper-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 1.25rem;
+      position: relative;
+    }
+    .palette-panel.active {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Advisory Council Roster Grid */
+    .council-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+    .advisor-card {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .advisor-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .advisor-role {
+      font: 600 0.64rem var(--mono);
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .advisor-name {
+      font: 600 0.92rem var(--sans);
+      color: #fff;
+    }
+    .advisor-quote {
+      font: 400 0.75rem/1.4 var(--sans);
+      color: var(--muted);
+      border-left: 2px solid var(--rule);
+      padding-left: 0.5rem;
+      font-style: italic;
+    }
+    .advisor-verdict {
+      margin-top: auto;
+      font: 600 0.68rem var(--mono);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      width: fit-content;
+    }
+    .verdict-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981; }
+    .verdict-caution { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid #f59e0b; }
+    .verdict-strict { background: rgba(236, 72, 153, 0.15); color: #ec4899; border: 1px solid #ec4899; }
+
+    /* Multi-Toolchain Matrix */
+    .toolchain-matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+    }
+    .toolchain-block {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .toolchain-block h4 {
+      font: 600 0.82rem var(--sans);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .toolchain-block p {
+      font: 400 0.74rem/1.45 var(--sans);
+      color: var(--muted);
+    }
+    .storytelling-abstract-section {
+      background: var(--paper-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-top: 1rem;
+    }
+    .abstract-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 0.75rem;
+    }
+    .abstract-header h2 {
+      font: 600 1.15rem var(--sans);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .abstract-narrative-flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+    }
+    .story-card {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .story-card:hover, .story-card.active {
+      border-color: var(--accent);
+      background: rgba(245, 158, 11, 0.06);
+      transform: translateY(-2px);
+    }
+    .story-card .step-num {
+      font: 600 0.65rem var(--mono);
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+    .story-card h3 {
+      font: 600 0.85rem var(--sans);
+      color: #fff;
+    }
+    .story-card p {
+      font: 400 0.72rem/1.45 var(--sans);
+      color: var(--muted);
+    }
+    .toolchain-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: auto;
+      padding-top: 0.4rem;
+    }
+    .tool-pill {
+      font: 500 0.58rem var(--mono);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #94a3b8;
+    }
+    .tool-pill.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+
+    /* Developer Directive Studio Console */
+    .directive-studio {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 8px;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.2rem;
+    }
+    .directive-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .directive-label {
+      font: 600 0.72rem var(--mono);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .directive-textarea {
+      width: 100%;
+      height: 70px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px;
+      color: #f1f5f9;
+      font: 400 0.78rem var(--mono);
+      padding: 0.6rem;
+      resize: none;
+      outline: none;
+    }
+    .directive-textarea:focus {
+      border-color: var(--accent);
+    }
+    .directive-actions {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .directive-btn {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid var(--accent);
+      color: #fff;
+      font: 600 0.7rem var(--mono);
+      border-radius: 6px;
+      padding: 0.5rem 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+    .directive-btn:hover {
+      background: var(--accent);
+      color: #000;
+    }
+    .directive-status {
+      font: 400 0.68rem var(--mono);
+      color: var(--soft);
+      line-height: 1.4;
+    }
+
+    /* 5-Level Architecture Breakdown Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    .card {
+      background: var(--paper-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      position: relative;
+    }
+    .card-tag {
+      font: 600 0.68rem var(--mono);
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .card h2 { font: 600 0.95rem var(--sans); color: #fff; }
+    .card p { font: 400 0.78rem/1.55 var(--sans); color: var(--muted); }
+    .card code {
+      background: rgba(255,255,255,0.06);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-size: 0.72rem;
+      font-family: var(--mono);
+      color: #cbd5e1;
+    }
+
+    @media (max-width: 1024px) {
+      .viewport-grid { grid-template-columns: 1fr; }
+      .channel-strip { grid-template-columns: repeat(3, 1fr); }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="frame">
+    <!-- Top HUD Header -->
+    <header class="hud-bar">
+      <div class="hud-title-wrap">
+        <div class="eyebrow">3D Volumetric Axonometric · Motion Engine · Reverse-Engineered (3ujOdi9W1EI)</div>
+        <h1>Fable 5.1 Agentic OS · Five-Level Interactive Blueprint</h1>
+      </div>
+      <div class="hud-stats">
+        <div class="hud-pill">FPS: <span class="num" id="fps-counter">60</span></div>
+        <div class="hud-pill">L1-L5 CHANNELS: <span class="num">5 ACTIVE</span></div>
+        <div class="hud-pill">PROMPT CACHE: <span class="num">92.4%</span></div>
+      </div>
+    </header>
+
+    <!-- 5-Channel Interactive Switcher -->
+    <nav class="channel-strip" role="toolbar" aria-label="5-Level Transition Controller">
+      <button class="channel-btn active" data-channel="all">
+        <span class="tag">CHANNEL 0</span>
+        <strong>ALL STRATA (3D)</strong>
+      </button>
+      <button class="channel-btn" data-channel="1">
+        <span class="tag">LEVEL 1</span>
+        <strong>WHEEL &amp; ROI</strong>
+      </button>
+      <button class="channel-btn" data-channel="2">
+        <span class="tag">LEVEL 2</span>
+        <strong>ONE BRAIN WIKI</strong>
+      </button>
+      <button class="channel-btn" data-channel="3">
+        <span class="tag">LEVEL 3</span>
+        <strong>MINISTRY MoE</strong>
+      </button>
+      <button class="channel-btn" data-channel="4">
+        <span class="tag">LEVEL 4</span>
+        <strong>NIGHTLY DREAM</strong>
+      </button>
+      <button class="channel-btn" data-channel="5">
+        <span class="tag">LEVEL 5</span>
+        <strong>VOICE &amp; MUTATE</strong>
+      </button>
+    </nav>
+
+    <!-- 3D Spatial Canvas + Side Inspection Dock -->
+    <section class="viewport-grid">
+      <div class="canvas-container">
+        <div class="canvas-overlay-ui">
+          <div class="camera-hud" id="camera-hud-text">ORBIT: AXONOMETRIC 45° · LAYER HEIGHT: 4.8u</div>
+          <div class="camera-hud" id="active-stratum-text">FOCUS: FULL VOLUMETRIC STACK</div>
+        </div>
+        <div id="three-viewport"></div>
+        <div class="orbit-controls-hint">Left Click + Drag: Orbit · Scroll: Zoom · Right Click: Pan</div>
+      </div>
+
+      <!-- Live Inspection & Mutation Telemetry Dock -->
+      <aside class="side-dock">
+        <div class="dock-header">
+          <div class="dock-title">
+            <span id="dock-title-text">Channel Inspection</span>
+          </div>
+          <span class="badge" id="dock-badge">ACTIVE</span>
+        </div>
+
+        <div class="dock-content" id="dock-body">
+          <p id="dock-desc">
+            Complete 5-strata agentic operating system architecture. Use top channel pills to trigger seamless 3D camera transitions and exploded axonometric layer focus.
+          </p>
+
+          <div class="dock-stat-box">
+            <span class="stat-label">Model Engine Routing</span>
+            <span class="stat-val" id="dock-stat-engine">Claude Fable 5.1</span>
+            <div class="stat-bar"><div class="stat-fill" id="dock-bar-fill" style="width: 90%;"></div></div>
+          </div>
+
+          <div class="dock-stat-box">
+            <span class="stat-label">Token Conservation Factor</span>
+            <span class="stat-val" id="dock-stat-tokens">7.8x Ponytail Ratio</span>
+          </div>
+
+          <div class="dock-stat-box">
+            <span class="stat-label">Channel Latency / Sync</span>
+            <span class="stat-val" id="dock-stat-latency">14ms Gateway Pulse</span>
+          </div>
+        </div>
+
+        <button class="mutation-trigger-btn" id="btn-trigger-mutation">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          TRIGGER LEVEL MUTATION
+        </button>
+      </aside>
+    </section>
+
+    <!-- Multi-Palette Suite Tab Bar -->
+    <nav class="suite-palette-bar" role="tablist" aria-label="Suite Palette Selector">
+      <button class="palette-tab-btn active" data-palette="narrative">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        PALETTE 01: NARRATIVE STORYBOARD
+      </button>
+      <button class="palette-tab-btn" data-palette="council">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        PALETTE 02: ADVISORY COUNCIL DEBATE
+      </button>
+      <button class="palette-tab-btn" data-palette="toolchain">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        PALETTE 03: MULTI-TOOLCHAIN STACK
+      </button>
+      <button class="palette-tab-btn" data-palette="telemetry">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        PALETTE 04: LIVE TELEMETRY &amp; ROI
+      </button>
+      <button class="palette-tab-btn" data-palette="directive">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        PALETTE 05: DIRECTIVE DISPATCHER
+      </button>
+    </nav>
+
+    <!-- Multi-Palette Container -->
+    <div class="multi-palette-container">
+      <!-- PALETTE 01: Narrative Storyboard -->
+      <section class="palette-panel active" id="palette-narrative">
+        <div class="abstract-header">
+          <h2>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            Visualized OS Abstract · Architectural Narrative
+          </h2>
+          <span class="badge">NARRATIVE SYNCHRONIZED</span>
+        </div>
+        <p style="font: 400 0.8rem/1.5 var(--sans); color: var(--muted); margin: 0;">
+          Select any level card below to focus the 3D WebGL camera and view individual stratum properties.
+        </p>
+        <div class="abstract-narrative-flow">
+          <div class="story-card active" data-story="1">
+            <span class="step-num">PHASE 01 · LEVEL 1</span>
+            <h3>Fable 5 Wheel &amp; ROI Dial</h3>
+            <p>Model selection + effort calibration + skill ROI analysis. Bridges cognitive capacity to daily revenue.</p>
+            <div class="toolchain-pill-row">
+              <span class="tool-pill active">ponytail</span>
+              <span class="tool-pill">diagram-design</span>
+              <span class="tool-pill">threejs-interaction</span>
+            </div>
+          </div>
+
+          <div class="story-card" data-story="2">
+            <span class="step-num">PHASE 02 · LEVEL 2</span>
+            <h3>One Brain Unified Memory</h3>
+            <p>Tri-harness memory graph. Karpathy Obsidian WIKI_ ⇄ Hermes ⇄ Claude Code vector sync.</p>
+            <div class="toolchain-pill-row">
+              <span class="tool-pill active">base-graph</span>
+              <span class="tool-pill active">base-ast</span>
+              <span class="tool-pill">graphify</span>
+            </div>
+          </div>
+
+          <div class="story-card" data-story="3">
+            <span class="step-num">PHASE 03 · LEVEL 3</span>
+            <h3>Ministry of Agents MoE</h3>
+            <p>Fable 5.1 Orchestrator commanding DeepSeek V4 Pro, GLM 5.2, GPT 5.5 in debate council with prompt caching.</p>
+            <div class="toolchain-pill-row">
+              <span class="tool-pill active">roast-room</span>
+              <span class="tool-pill">multiplayer-agents</span>
+              <span class="tool-pill">threejs-materials</span>
+            </div>
+          </div>
+
+          <div class="story-card" data-story="4">
+            <span class="step-num">PHASE 04 · LEVEL 4</span>
+            <h3>Overnight Dreaming Engine</h3>
+            <p>Nightly cron daemon aggregating journals, AntiGravity, and git diffs into actionable morning execution cards.</p>
+            <div class="toolchain-pill-row">
+              <span class="tool-pill active">blender-kiln</span>
+              <span class="tool-pill">motionsites</span>
+              <span class="tool-pill">threejs-animation</span>
+            </div>
+          </div>
+
+          <div class="story-card" data-story="5">
+            <span class="step-num">PHASE 05 · LEVEL 5</span>
+            <h3>Voice &amp; Live UI Mutation</h3>
+            <p>Glaido STT + ElevenLabs neural TTS executing real-time DOM/CSS self-mutation and dynamic 3D telemetry shifts.</p>
+            <div class="toolchain-pill-row">
+              <span class="tool-pill active">impeccable</span>
+              <span class="tool-pill active">threejs-shaders</span>
+              <span class="tool-pill">elevenlabs</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PALETTE 02: Advisory Council Debate -->
+      <section class="palette-panel" id="palette-council">
+        <div class="abstract-header">
+          <h2>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Advisory Council &amp; Strategic Debate Roster (/roast-room)
+          </h2>
+          <span class="badge" style="border-color:#10b981; color:#10b981;">COUNCIL ACTIVE</span>
+        </div>
+        <div class="council-grid">
+          <div class="advisor-card">
+            <span class="advisor-role">Architect · Scale &amp; Reversibility</span>
+            <span class="advisor-name">Jeff Bezos</span>
+            <p class="advisor-quote">"All 5 strata are Type 2 two-way doors except the One Brain memory schema. Keep the prompt cache locked to preserve Day 1 velocity."</p>
+            <div class="advisor-verdict verdict-pass">VERDICT: PASS (PR/FAQ Gated)</div>
+          </div>
+          <div class="advisor-card">
+            <span class="advisor-role">Pragmatist · ROI &amp; Cash Speed</span>
+            <span class="advisor-name">Alex Hormozi</span>
+            <p class="advisor-quote">"Level 1 Wheel gives immediate $1,200/day return by cutting token waste. If L5 voice adds latency without conversions, delete it."</p>
+            <div class="advisor-verdict verdict-pass">VERDICT: PASS (ROI &gt; 8x)</div>
+          </div>
+          <div class="advisor-card">
+            <span class="advisor-role">Critic · First-Principles Deletion</span>
+            <span class="advisor-name">Elon Musk</span>
+            <p class="advisor-quote">"Delete intermediate API shims between Fable 5.1 and DeepSeek V4. Step 2 of algorithm: delete the part. If not adding back 10%, you're not deleting enough."</p>
+            <div class="advisor-verdict verdict-caution">VERDICT: OPTIMIZE SHIMS</div>
+          </div>
+          <div class="advisor-card">
+            <span class="advisor-role">Skeptic · Inversion &amp; Moat</span>
+            <span class="advisor-name">Warren Buffett &amp; Charlie Munger</span>
+            <p class="advisor-quote">"Invert: How does this OS fail? By vector memory corruption or runaway agent loop spend. Guard the base graph."</p>
+            <div class="advisor-verdict verdict-strict">VERDICT: STRICT MOAT</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PALETTE 03: Multi-Toolchain Stack -->
+      <section class="palette-panel" id="palette-toolchain">
+        <div class="abstract-header">
+          <h2>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            Multi-Toolchain &amp; Inventory Skill Integration Matrix
+          </h2>
+          <span class="badge" style="border-color:#38bdf8; color:#38bdf8;">TOOLCHAIN SYNCHRONIZED</span>
+        </div>
+        <div class="toolchain-matrix-grid">
+          <div class="toolchain-block">
+            <h4><span class="tool-pill active">blender-kiln</span> 3D Asset Forge</h4>
+            <p>Automated mesh cleanup, GLTF physical material tuning, and procedural glass transmission generation for spatial layers.</p>
+          </div>
+          <div class="toolchain-block">
+            <h4><span class="tool-pill active">threejs-suite</span> Volumetric Engine</h4>
+            <p>Three.js r128 WebGL rendering with OrbitControls, custom shader materials, particle conduits, and real-time raycasting.</p>
+          </div>
+          <div class="toolchain-block">
+            <h4><span class="tool-pill active">diagram-design</span> Architectural Visuals</h4>
+            <p>45-pattern visual grammar generating high-density technical layouts, exploded axonometrics, and state charts.</p>
+          </div>
+          <div class="toolchain-block">
+            <h4><span class="tool-pill active">motionsites</span> Motion Choreography</h4>
+            <p>GSAP 3.12.5 multi-channel camera easing paired with Anime.js kinetic border pulses and Lenis smooth scrolling.</p>
+          </div>
+          <div class="toolchain-block">
+            <h4><span class="tool-pill active">ponytail</span> Token Optimizer</h4>
+            <p>Input token compression engine saving 7.8x input tokens via base graph AST extraction before reading raw files.</p>
+          </div>
+          <div class="toolchain-block">
+            <h4><span class="tool-pill active">impeccable</span> UI/UX Craft Standards</h4>
+            <p>Apple iOS 26 / Linear liquid-glass design language, specular wireframe rims, and non-clipping HUD containers.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- PALETTE 04: Live Telemetry & ROI -->
+      <section class="palette-panel" id="palette-telemetry">
+        <div class="abstract-header">
+          <h2>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Agentic OS Real-Time Performance &amp; ROI Telemetry
+          </h2>
+          <span class="badge" style="border-color:#ec4899; color:#ec4899;">LIVE STREAMING</span>
+        </div>
+        <div class="cards-grid">
+          <div class="card l1">
+            <span class="level-tag">LEVEL 01 METRICS</span>
+            <h3>ROI &amp; Token Yield</h3>
+            <p>Daily savings: <strong>$1,240 / day</strong> via dynamic effort routing. Input compression: <strong>88.4%</strong>.</p>
+          </div>
+          <div class="card l2">
+            <span class="level-tag">LEVEL 02 METRICS</span>
+            <h3>Memory Graph Coherence</h3>
+            <p>Graph nodes: <strong>14,820</strong>. Cross-harness sync latency: <strong>12ms</strong>. Hallucination rate: <strong>&lt;0.02%</strong>.</p>
+          </div>
+          <div class="card l3">
+            <span class="level-tag">LEVEL 03 METRICS</span>
+            <h3>MoE Consensus Speed</h3>
+            <p>Average debate rounds: <strong>1.4</strong>. Prompt cache reuse: <strong>94.8%</strong>. Token burn reduction: <strong>6.2x</strong>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- PALETTE 05: Directive Dispatcher -->
+      <section class="palette-panel" id="palette-directive">
+        <div class="abstract-header">
+          <h2>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Developer Architectural Advice &amp; Directive Studio
+          </h2>
+          <span class="badge">DEVELOPER OVERRIDE</span>
+        </div>
+        <div class="directive-studio" style="margin-top:0;">
+          <div class="directive-inputs">
+            <div class="directive-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              DISPATCH ARCHITECTURAL DIRECTIVES TO AGENTIC RUNTIME
+            </div>
+            <textarea class="directive-textarea" id="developer-directive-text" placeholder="Type or dictate architectural guidelines for this stratum (e.g. 'Integrate Blender Kiln 3D asset forge into Level 4 dreaming pipeline with automated GLTF optimization...')."></textarea>
+          </div>
+          <div class="directive-actions">
+            <button class="directive-btn" id="btn-dispatch-directive">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              DISPATCH DIRECTIVE TO RUNTIME
+            </button>
+            <div class="directive-status" id="directive-log">
+              Status: Ready. Awaiting developer architectural directives.
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Architecture Pillars & Video Storyline Fidelity -->
+    <section class="cards-grid">
+      <article class="card">
+        <div class="card-tag">01 · Level 1 &amp; Level 2 Foundation</div>
+        <h2>Giving Wheel &amp; One Brain</h2>
+        <p>Hermes effort dial (Low/Med/High/XHigh) + missing skill ROI calculator. Unifies Obsidian Karpathy wiki with Hermes and Claude Code local memory using <code>base graph</code>, <code>base ast</code>, and Ponytail compression.</p>
+      </article>
+      <article class="card">
+        <div class="card-tag">02 · Level 3 &amp; Level 4 Scaled MoE</div>
+        <h2>Ministry of Agents &amp; Dreaming</h2>
+        <p>Fable 5.1 orchestrating a debate council (DeepSeek V4 Pro, GLM 5.2, GPT 5.5) via OpenRouter with zero-waste shared prompt caching. Nightly dream daemon reviews chats, AntiGravity, and memory to generate morning actions.</p>
+      </article>
+      <article class="card">
+        <div class="card-tag">03 · Level 5 Voice &amp; Self-Mutation</div>
+        <h2>Gold Plasma Live UI Mutation</h2>
+        <p>Voice-driven real-time DOM and theme self-mutation with Glaido STT and ElevenLabs neural TTS. Directly alters live views, telemetry graphs, and design system tokens on voice commands.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    // Initialize Lenis Smooth Scroll
+    const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+
+    // Three.js Volumetric Exploded Axonometric Setup
+    const container = document.getElementById('three-viewport');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x06080e);
+
+    const camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.set(24, 28, 30);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.target.set(0, 0, 0);
+    controls.maxPolarAngle = Math.PI / 2.05;
+
+    // Ambient & Directional Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.2);
+    dirLight.position.set(15, 30, 20);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
+
+    const bluePoint = new THREE.PointLight(0x38bdf8, 2, 40);
+    bluePoint.position.set(-15, 10, -10);
+    scene.add(bluePoint);
+
+    const goldPoint = new THREE.PointLight(0xf59e0b, 2.5, 40);
+    goldPoint.position.set(15, 15, 15);
+    scene.add(goldPoint);
+
+    // Grid Floor
+    const gridHelper = new THREE.GridHelper(40, 40, 0x1e293b, 0x0f172a);
+    gridHelper.position.y = -6;
+    scene.add(gridHelper);
+
+    // 5-Level Volumetric Strata Creation
+    const strataGroup = new THREE.Group();
+    scene.add(strataGroup);
+
+    const strataData = [
+      { id: 1, name: "Level 1: Giving Wheel & ROI", color: 0x10b981, yBase: -4, desc: "Hermes Model Selector, Effort Dial (L/M/H/XH), and Missing Skill $/Day ROI Engine.", engine: "Claude Fable 5.1 (Hermes)", tokens: "94.2% Optimization", latency: "8ms" },
+      { id: 2, name: "Level 2: One Brain Unified Memory", color: 0x8b5cf6, yBase: -1.5, desc: "Karpathy Obsidian WIKI_ ⇄ Hermes ⇄ Claude Code unified memory graph with live topic clustering.", engine: "OneBrain Vector/AST Sync", tokens: "8.4x Token Gain", latency: "12ms" },
+      { id: 3, name: "Level 3: Ministry of Agents (MoE)", color: 0xf59e0b, yBase: 1.0, desc: "Fable 5.1 Orchestrator + DeepSeek V4 Pro, GLM 5.2, GPT 5.5 Debate Council with shared prompt cache.", engine: "MoE Quad-Council", tokens: "98.6% Cache Hit", latency: "18ms" },
+      { id: 4, name: "Level 4: Overnight Dreaming Daemon", color: 0xec4899, yBase: 3.5, desc: "Nightly cron daemon reading chats, code, and AntiGravity to synthesize morning execution cards.", engine: "Dreaming Sub-Agency", tokens: "Batch Ingest Mode", latency: "Passive Cron" },
+      { id: 5, name: "Level 5: Gold Plasma Voice Line", color: 0x38bdf8, yBase: 6.0, desc: "Glaido STT + ElevenLabs TTS voice loop with autonomous real-time DOM/CSS self-mutation capabilities.", engine: "Voice Neural Pipeline", tokens: "Real-time Stream", latency: "220ms Voice-to-UI" }
+    ];
+
+    const layerPlanes = [];
+    const coreCores = [];
+
+    strataData.forEach((stratum) => {
+      const layerObj = new THREE.Group();
+      layerObj.position.y = stratum.yBase;
+      layerObj.userData = stratum;
+
+      // Glass Plane Slab
+      const slabGeo = new THREE.BoxGeometry(16, 0.35, 12);
+      const slabMat = new THREE.MeshPhysicalMaterial({
+        color: stratum.color,
+        transparent: true,
+        opacity: 0.35,
+        roughness: 0.1,
+        metalness: 0.1,
+        transmission: 0.7,
+        ior: 1.45,
+        reflectivity: 0.6,
+        clearcoat: 1.0
+      });
+      const slab = new THREE.Mesh(slabGeo, slabMat);
+      slab.receiveShadow = true;
+      layerObj.add(slab);
+
+      // Specular Wire Rim
+      const edges = new THREE.EdgesGeometry(slabGeo);
+      const lineMat = new THREE.LineBasicMaterial({ color: stratum.color, linewidth: 2 });
+      const wire = new THREE.LineSegments(edges, lineMat);
+      layerObj.add(wire);
+
+      // Central Neural Core Node
+      const coreGeo = new THREE.OctahedronGeometry(0.85, 0);
+      const coreMat = new THREE.MeshStandardMaterial({
+        color: stratum.color,
+        emissive: stratum.color,
+        emissiveIntensity: 0.6,
+        roughness: 0.2,
+        metalness: 0.8
+      });
+      const core = new THREE.Mesh(coreGeo, coreMat);
+      core.position.set(0, 0.8, 0);
+      layerObj.add(core);
+      coreCores.push(core);
+
+      // Satellite Component Cubes
+      for(let i = -1; i <= 1; i += 2) {
+        for(let j = -1; j <= 1; j += 2) {
+          const satGeo = new THREE.BoxGeometry(1.4, 0.5, 1.4);
+          const satMat = new THREE.MeshStandardMaterial({
+            color: 0x1e293b,
+            metalness: 0.5,
+            roughness: 0.3
+          });
+          const sat = new THREE.Mesh(satGeo, satMat);
+          sat.position.set(i * 5.5, 0.45, j * 4);
+          layerObj.add(sat);
+
+          const satEdge = new THREE.LineSegments(new THREE.EdgesGeometry(satGeo), new THREE.LineBasicMaterial({ color: stratum.color, opacity: 0.4, transparent: true }));
+          sat.add(satEdge);
+        }
+      }
+
+      strataGroup.add(layerObj);
+      layerPlanes.push(layerObj);
+    });
+
+    // Particle Stream Spine (Vertical Transit Conduit)
+    const particleCount = 140;
+    const particleGeo = new THREE.BufferGeometry();
+    const particlePos = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount; i++) {
+      particlePos[i * 3] = (Math.random() - 0.5) * 4;
+      particlePos[i * 3 + 1] = (Math.random() - 0.5) * 14;
+      particlePos[i * 3 + 2] = (Math.random() - 0.5) * 4;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+    const particleMat = new THREE.PointsMaterial({
+      color: 0xf59e0b,
+      size: 0.25,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending
+    });
+    const particleSystem = new THREE.Points(particleGeo, particleMat);
+    scene.add(particleSystem);
+
+    // Interactive Channel Switching via GSAP & 3D Camera Choreography
+    const channelButtons = document.querySelectorAll('.channel-btn');
+    const cameraHudText = document.getElementById('camera-hud-text');
+    const activeStratumText = document.getElementById('active-stratum-text');
+    const dockTitleText = document.getElementById('dock-title-text');
+    const dockDesc = document.getElementById('dock-desc');
+    const dockStatEngine = document.getElementById('dock-stat-engine');
+    const dockStatTokens = document.getElementById('dock-stat-tokens');
+    const dockStatLatency = document.getElementById('dock-stat-latency');
+    const dockBarFill = document.getElementById('dock-bar-fill');
+
+    function switchChannel(channelId) {
+      channelButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.channel === String(channelId)));
+      document.querySelectorAll('.story-card').forEach(card => card.classList.toggle('active', card.dataset.story === String(channelId)));
+
+      if (channelId === 'all') {
+        // Reset full volumetric exploded stack
+        gsap.to(camera.position, { x: 24, y: 28, z: 30, duration: 1.4, ease: "power3.inOut" });
+        gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.4, ease: "power3.inOut" });
+
+        layerPlanes.forEach((lp, idx) => {
+          gsap.to(lp.position, { y: strataData[idx].yBase, duration: 1.2, ease: "back.out(1.2)" });
+          gsap.to(lp.scale, { x: 1, y: 1, z: 1, duration: 0.8 });
+        });
+
+        cameraHudText.textContent = "ORBIT: AXONOMETRIC 45° · LAYER HEIGHT: 4.8u";
+        activeStratumText.textContent = "FOCUS: FULL VOLUMETRIC STACK (L1-L5)";
+        dockTitleText.textContent = "5-Level Holistic System";
+        dockDesc.textContent = "All five strata working synchronously: Fable 5.1 wheel, unified Obsidian/Hermes memory, Ministry debate council, overnight dreaming, and gold plasma voice line.";
+        dockStatEngine.textContent = "Orchestrated Fable 5.1 (MoE)";
+        dockStatTokens.textContent = "7.8x Ponytail Ratio";
+        dockStatLatency.textContent = "14ms Gateway Pulse";
+        dockBarFill.style.width = "90%";
+      } else {
+        const targetIndex = parseInt(channelId, 10) - 1;
+        const targetData = strataData[targetIndex];
+
+        // Explode other layers away and zoom into the focused layer
+        layerPlanes.forEach((lp, idx) => {
+          if (idx === targetIndex) {
+            gsap.to(lp.position, { y: 0, duration: 1.2, ease: "power3.out" });
+            gsap.to(lp.scale, { x: 1.15, y: 1.15, z: 1.15, duration: 1.0 });
+          } else {
+            const offset = idx < targetIndex ? -8 - (targetIndex - idx) * 3 : 8 + (idx - targetIndex) * 3;
+            gsap.to(lp.position, { y: offset, duration: 1.2, ease: "power3.inOut" });
+            gsap.to(lp.scale, { x: 0.75, y: 0.75, z: 0.75, duration: 0.8 });
+          }
+        });
+
+        gsap.to(camera.position, { x: 14, y: 12, z: 16, duration: 1.4, ease: "power3.inOut" });
+        gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.4, ease: "power3.inOut" });
+
+        cameraHudText.textContent = `FOCUS: ${targetData.name.toUpperCase()}`;
+        activeStratumText.textContent = `STRATUM Y-ORIGIN: ${targetData.yBase}u (ISOLATED)`;
+        dockTitleText.textContent = targetData.name;
+        dockDesc.textContent = targetData.desc;
+        dockStatEngine.textContent = targetData.engine;
+        dockStatTokens.textContent = targetData.tokens;
+        dockStatLatency.textContent = targetData.latency;
+        dockBarFill.style.width = `${60 + targetIndex * 8}%`;
+      }
+    }
+
+    channelButtons.forEach(btn => {
+      btn.addEventListener('click', () => switchChannel(btn.dataset.channel));
+    });
+
+    // Multi-Palette Suite Tab Switching Logic
+    const paletteTabs = document.querySelectorAll('.palette-tab-btn');
+    const palettePanels = document.querySelectorAll('.palette-panel');
+
+    paletteTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.palette;
+        paletteTabs.forEach(t => t.classList.remove('active'));
+        palettePanels.forEach(p => p.classList.remove('active'));
+
+        tab.classList.add('active');
+        const targetPanel = document.getElementById(`palette-${target}`);
+        if (targetPanel) {
+          targetPanel.classList.add('active');
+
+          // Animate tab focus entry
+          anime({
+            targets: targetPanel,
+            opacity: [0, 1],
+            translateY: [10, 0],
+            duration: 350,
+            easing: 'easeOutCubic'
+          });
+        }
+      });
+    });
+
+    // Storytelling Narrative Flow Click Handlers
+    document.querySelectorAll('.story-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.story-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        const level = card.dataset.story;
+        switchChannel(level);
+      });
+    });
+
+    // Developer Architectural Directive Dispatcher
+    const btnDispatchDirective = document.getElementById('btn-dispatch-directive');
+    const developerDirectiveText = document.getElementById('developer-directive-text');
+    const directiveLog = document.getElementById('directive-log');
+
+    btnDispatchDirective.addEventListener('click', () => {
+      const directiveVal = developerDirectiveText.value.trim();
+      if (!directiveVal) {
+        directiveLog.innerHTML = "<span style='color: #ef4444;'>Error: Directive text empty. Please specify architectural guidance.</span>";
+        return;
+      }
+
+      directiveLog.innerHTML = `<span style='color: #10b981;'>✓ DIRECTIVE DISPATCHED:</span> "${directiveVal.slice(0, 48)}..." → Registered in Runtime Memory.`;
+
+      // Trigger visual acknowledgment pulse
+      anime({
+        targets: '.directive-studio',
+        borderColor: ['rgba(245, 158, 11, 0.25)', '#10b981', 'rgba(245, 158, 11, 0.25)'],
+        boxShadow: ['0 0 0px #000', '0 0 25px rgba(16, 185, 129, 0.35)', '0 0 0px #000'],
+        duration: 1000,
+        easing: 'easeInOutQuad'
+      });
+      developerDirectiveText.value = '';
+    });
+
+    // Real-Time UI Mutation Trigger Demo
+    const btnTriggerMutation = document.getElementById('btn-trigger-mutation');
+    btnTriggerMutation.addEventListener('click', () => {
+      anime({
+        targets: '.canvas-container',
+        borderColor: ['rgba(255,255,255,0.1)', '#f59e0b', 'rgba(255,255,255,0.1)'],
+        boxShadow: ['0 0 0px #000', '0 0 35px rgba(245, 158, 11, 0.4)', '0 0 0px #000'],
+        duration: 1200,
+        easing: 'easeInOutQuad'
+      });
+
+      // Kinetic camera pulse
+      gsap.to(camera.position, {
+        x: "+=2", y: "+=1.5", z: "+=2", yoyo: true, repeat: 1, duration: 0.4, ease: "sine.inOut"
+      });
+
+      // Scatter and realign particles
+      const pos = particleGeo.attributes.position.array;
+      for(let i=0; i<particleCount*3; i+=3) {
+        pos[i] = (Math.random() - 0.5) * 8;
+        pos[i+1] = (Math.random() - 0.5) * 16;
+        pos[i+2] = (Math.random() - 0.5) * 8;
+      }
+      particleGeo.attributes.position.needsUpdate = true;
+    });
+
+    // Animation Render Loop
+    let lastTime = performance.now();
+    let frameCount = 0;
+    const fpsCounter = document.getElementById('fps-counter');
+
+    function animate(now) {
+      requestAnimationFrame(animate);
+
+      // FPS tracking
+      frameCount++;
+      if (now - lastTime >= 1000) {
+        fpsCounter.textContent = frameCount;
+        frameCount = 0;
+        lastTime = now;
+      }
+
+      // Continuous subtle rotation of neural cores
+      coreCores.forEach((c, idx) => {
+        c.rotation.x += 0.01 * (idx % 2 === 0 ? 1 : -1);
+        c.rotation.y += 0.015;
+      });
+
+      // Float particle stream upwards
+      const positions = particleGeo.attributes.position.array;
+      for (let i = 1; i < particleCount * 3; i += 3) {
+        positions[i] += 0.04;
+        if (positions[i] > 8) positions[i] = -8;
+      }
+      particleGeo.attributes.position.needsUpdate = true;
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(animate);
+
+    // Responsive Canvas Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+  </script>
+</body>
+</html>
