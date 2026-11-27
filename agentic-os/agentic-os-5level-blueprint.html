@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fable 5.1 Agentic OS · 3D Interactive Spatial Blueprint</title>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <title>Fable 5.1 Agentic OS · 3D Multi-Window Spatial Slides Deck</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
 
-  <!-- CDNs for 3D Motion & Physics Engine -->
+  <!-- CDNs for 3D Motion, Shaders, & Physics Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -16,1309 +16,1290 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --paper: #0b0d13;
-      --paper-card: rgba(22, 26, 38, 0.72);
-      --paper-glass: rgba(255, 255, 255, 0.04);
+      --paper: #080c16;
+      --paper-card: rgba(15, 23, 42, 0.72);
+      --paper-glass: rgba(255, 255, 255, 0.05);
       --ink: #f8fafc;
       --muted: #94a3b8;
       --soft: #64748b;
-      --accent: #f59e0b;
-      --accent-glow: rgba(245, 158, 11, 0.28);
-      --link: #38bdf8;
-      --l1-col: #10b981;
-      --l2-col: #8b5cf6;
-      --l3-col: #f59e0b;
-      --l4-col: #ec4899;
-      --l5-col: #38bdf8;
-      --rule: rgba(255, 255, 255, 0.1);
-      --specular: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.02) 100%);
-      --sans: 'Geist', system-ui, -apple-system, sans-serif;
+      --accent: #fbbf24;
+      --accent-glow: rgba(251, 191, 36, 0.35);
+      --accent-cyan: #00f0ff;
+      --accent-emerald: #10b981;
+      --accent-violet: #a855f7;
+      --accent-pink: #ec4899;
+      --rule: rgba(255, 255, 255, 0.12);
+      --lg-backdrop-filter: blur(24px) saturate(180%);
+      --lg-specular-rim: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.02) 100%);
+      --lg-specular-glow: 0 16px 48px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      --sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
       --serif: 'Instrument Serif', serif;
-      --mono: 'Geist Mono', ui-monospace, monospace;
+      --mono: 'JetBrains Mono', 'Geist Mono', monospace;
+      --radius-pill: 9999px;
+      --radius-hud: 16px;
+      --radius-card: 14px;
     }
 
     body {
-      min-height: 100vh;
       background: var(--paper);
       color: var(--ink);
       font-family: var(--sans);
-      overflow-x: hidden;
-      padding: 1.5rem;
-      background-image:
-        radial-gradient(circle at 15% 15%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
-    }
-
-    .frame {
-      width: 100%;
-      max-width: 1380px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    /* Top HUD Header */
-    .hud-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.85rem 1.4rem;
-      background: var(--paper-card);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--rule);
-      border-radius: 12px;
-      position: relative;
-    }
-    .hud-bar::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; height: 1px;
-      background: var(--specular);
-      border-radius: 12px 12px 0 0;
-    }
-    .hud-title-wrap { display: flex; flex-direction: column; gap: 0.2rem; }
-    .eyebrow {
-      color: var(--accent);
-      font: 600 0.7rem var(--mono);
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .eyebrow::before {
-      content: '';
-      display: inline-block;
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 10px var(--accent);
-      animation: pulse 2s infinite ease-in-out;
-    }
-    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-
-    h1 {
-      font: 400 clamp(1.4rem, 2vw + 0.6rem, 2rem)/1.15 var(--serif);
-      letter-spacing: -0.015em;
-      color: #fff;
-    }
-
-    .hud-stats {
-      display: flex;
-      gap: 1.25rem;
-    }
-    .hud-pill {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--rule);
-      padding: 0.4rem 0.85rem;
-      border-radius: 20px;
-      font: 500 0.72rem var(--mono);
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .hud-pill span.num { color: var(--ink); font-weight: 600; }
-
-    /* Interactive Channel Switcher (5 Levels) */
-    .channel-strip {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 0.5rem;
-    }
-    .channel-btn {
-      background: var(--paper-card);
-      border: 1px solid var(--rule);
-      border-radius: 8px;
-      padding: 0.65rem 0.85rem;
-      color: var(--muted);
-      font: 500 0.75rem var(--mono);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
       overflow: hidden;
-    }
-    .channel-btn span.tag { font-size: 0.62rem; opacity: 0.7; letter-spacing: 0.08em; }
-    .channel-btn:hover {
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.22);
-      color: #fff;
-      transform: translateY(-2px);
-    }
-    .channel-btn.active {
-      background: rgba(245, 158, 11, 0.12);
-      border-color: var(--accent);
-      color: #fff;
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.18);
-    }
-    .channel-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0; height: 2px;
-      background: var(--accent);
+      width: 100vw;
+      height: 100vh;
+      user-select: none;
     }
 
-    /* 3D Viewport Stage Container */
-    .viewport-grid {
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 1.25rem;
-      min-height: 560px;
-    }
-
-    .canvas-container {
-      position: relative;
-      background: #06080e;
-      border: 1px solid var(--rule);
-      border-radius: 12px;
-      overflow: hidden;
-      min-height: 560px;
-      box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
-    }
-    #three-viewport {
+    /* 3D WebGL Canvas */
+    #webgl-stage {
+      position: fixed;
+      inset: 0;
       width: 100%;
       height: 100%;
-      display: block;
-    }
-    .canvas-overlay-ui {
-      position: absolute;
-      top: 14px; left: 16px;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-    .camera-hud {
-      font: 500 0.68rem var(--mono);
-      color: rgba(255,255,255,0.5);
-      background: rgba(0,0,0,0.6);
-      padding: 0.3rem 0.6rem;
-      border-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.08);
-      display: inline-block;
-    }
-    .orbit-controls-hint {
-      position: absolute;
-      bottom: 14px; right: 16px;
-      font: 400 0.68rem var(--mono);
-      color: var(--soft);
-      background: rgba(0,0,0,0.6);
-      padding: 0.3rem 0.6rem;
-      border-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.08);
-      pointer-events: none;
+      z-index: 1;
+      pointer-events: auto;
     }
 
-    /* Side Telemetry & Live Inspection Dock */
-    .side-dock {
-      background: var(--paper-card);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--rule);
-      border-radius: 12px;
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.1rem;
-      position: relative;
-    }
-    .dock-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--rule);
-      padding-bottom: 0.65rem;
-    }
-    .dock-title {
-      font: 600 0.82rem var(--sans);
-      color: #fff;
+    /* Top Floating Pill HUD */
+    .hud-top-bar {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-    }
-    .badge {
-      font: 600 0.62rem var(--mono);
-      padding: 0.15rem 0.45rem;
-      border-radius: 4px;
-      background: rgba(245, 158, 11, 0.1);
-      color: var(--accent);
-      border: 1px solid var(--accent);
-    }
-    .badge-btn {
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .badge-btn:hover {
-      background: var(--accent);
-      color: #000;
-    }
-    .dock-content {
-      font: 400 0.78rem/1.55 var(--sans);
-      color: var(--muted);
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-    }
-    .dock-stat-box {
-      background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 6px;
-      padding: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-    .stat-label { font: 500 0.68rem var(--mono); color: var(--soft); text-transform: uppercase; }
-    .stat-val { font: 600 1rem var(--mono); color: #fff; }
-    .stat-bar {
-      height: 4px;
-      width: 100%;
-      background: rgba(255,255,255,0.08);
-      border-radius: 2px;
-      overflow: hidden;
-      margin-top: 0.2rem;
-    }
-    .stat-fill {
-      height: 100%;
-      background: var(--accent);
-      width: 78%;
-      transition: width 0.6s ease;
+      gap: 16px;
+      padding: 8px 22px;
+      border-radius: var(--radius-pill);
+      background: rgba(8, 12, 22, 0.82);
+      backdrop-filter: var(--lg-backdrop-filter);
+      -webkit-backdrop-filter: var(--lg-backdrop-filter);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      font-family: var(--sans);
     }
 
-    .mutation-trigger-btn {
-      margin-top: auto;
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.05) 100%);
-      border: 1px solid var(--accent);
-      color: #fff;
-      border-radius: 8px;
-      padding: 0.75rem;
-      font: 600 0.75rem var(--mono);
-      cursor: pointer;
+    .hud-slide-indicator {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: all 0.2s ease;
-    }
-    .mutation-trigger-btn:hover {
-      background: var(--accent);
-      color: #000;
-      box-shadow: 0 0 20px var(--accent-glow);
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--accent-cyan);
     }
 
-    /* Multi-Palette Dock & Suite Grid */
-    .suite-palette-bar {
-      display: flex;
-      gap: 0.5rem;
-      background: var(--paper-card);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--rule);
-      border-radius: 10px;
-      padding: 0.4rem;
-      overflow-x: auto;
+    .hud-slide-indicator .badge {
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      padding: 2px 10px;
+      border-radius: var(--radius-pill);
     }
-    .palette-tab-btn {
+
+    .hud-telemetry {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 0 12px;
+      border-left: 1px solid rgba(255, 255, 255, 0.12);
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .hud-fps { color: var(--accent-emerald); display: flex; align-items: center; gap: 6px; }
+    .hud-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-emerald); box-shadow: 0 0 8px var(--accent-emerald); animation: pulse 2s infinite ease-in-out; }
+    .hud-tokens { color: var(--accent); }
+
+    .hud-mode-switcher {
+      display: flex;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 3px;
+      border-radius: var(--radius-pill);
+    }
+
+    .hud-mode-btn {
       background: transparent;
-      border: 1px solid transparent;
+      border: none;
       color: var(--muted);
-      padding: 0.5rem 0.9rem;
-      border-radius: 6px;
-      font: 600 0.72rem var(--mono);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-    .palette-tab-btn:hover {
-      color: #fff;
-      background: rgba(255,255,255,0.03);
-    }
-    .palette-tab-btn.active {
-      color: #000;
-      background: var(--accent);
-      border-color: var(--accent);
-      box-shadow: 0 0 12px var(--accent-glow);
-    }
-
-    .multi-palette-container {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-    .palette-panel {
-      display: none;
-      background: var(--paper-card);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--rule);
-      border-radius: 12px;
-      padding: 1.25rem;
-      position: relative;
-    }
-    .palette-panel.active {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Advisory Council Roster Grid */
-    .council-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.75rem;
-    }
-    .advisor-card {
-      background: rgba(0,0,0,0.45);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      position: relative;
-      transition: all 0.2s ease;
-    }
-    .advisor-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-    .advisor-role {
-      font: 600 0.64rem var(--mono);
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .advisor-name {
-      font: 600 0.92rem var(--sans);
-      color: #fff;
-    }
-    .advisor-quote {
-      font: 400 0.75rem/1.4 var(--sans);
-      color: var(--muted);
-      border-left: 2px solid var(--rule);
-      padding-left: 0.5rem;
-      font-style: italic;
-    }
-    .advisor-verdict {
-      margin-top: auto;
-      font: 600 0.68rem var(--mono);
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      width: fit-content;
-    }
-    .verdict-pass { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981; }
-    .verdict-caution { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid #f59e0b; }
-    .verdict-strict { background: rgba(236, 72, 153, 0.15); color: #ec4899; border: 1px solid #ec4899; }
-
-    /* Multi-Toolchain Matrix */
-    .toolchain-matrix-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.85rem;
-    }
-    .toolchain-block {
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 8px;
-      padding: 0.9rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .toolchain-block h4 {
-      font: 600 0.82rem var(--sans);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .toolchain-block p {
-      font: 400 0.74rem/1.45 var(--sans);
-      color: var(--muted);
-    }
-    .storytelling-abstract-section {
-      background: var(--paper-card);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--rule);
-      border-radius: 12px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.2rem;
-      margin-top: 1rem;
-    }
-    .abstract-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      padding-bottom: 0.75rem;
-    }
-    .abstract-header h2 {
-      font: 600 1.15rem var(--sans);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .abstract-narrative-flow {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 0.75rem;
-    }
-    .story-card {
-      background: rgba(0,0,0,0.4);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 8px;
-      padding: 0.9rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: var(--radius-pill);
       cursor: pointer;
       transition: all 0.25s ease;
-      position: relative;
-    }
-    .story-card:hover, .story-card.active {
-      border-color: var(--accent);
-      background: rgba(245, 158, 11, 0.06);
-      transform: translateY(-2px);
-    }
-    .story-card .step-num {
-      font: 600 0.65rem var(--mono);
-      color: var(--accent);
-      letter-spacing: 0.08em;
-    }
-    .story-card h3 {
-      font: 600 0.85rem var(--sans);
-      color: #fff;
-    }
-    .story-card p {
-      font: 400 0.72rem/1.45 var(--sans);
-      color: var(--muted);
-    }
-    .toolchain-pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.3rem;
-      margin-top: auto;
-      padding-top: 0.4rem;
-    }
-    .tool-pill {
-      font: 500 0.58rem var(--mono);
-      padding: 0.1rem 0.3rem;
-      border-radius: 3px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: #94a3b8;
-    }
-    .tool-pill.active {
-      background: rgba(56, 189, 248, 0.15);
-      border-color: #38bdf8;
-      color: #38bdf8;
     }
 
-    /* Developer Directive Studio Console */
-    .directive-studio {
-      background: rgba(0,0,0,0.5);
-      border: 1px solid rgba(245, 158, 11, 0.25);
-      border-radius: 8px;
-      padding: 1rem;
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1.2rem;
+    .hud-mode-btn.active {
+      background: var(--accent);
+      color: #080c16;
+      font-weight: 700;
+      box-shadow: 0 0 16px rgba(251, 191, 36, 0.45);
     }
-    .directive-inputs {
+
+    /* Left Floating Stratum Vertical Minimap */
+    .hud-stratum-minimap {
+      position: fixed;
+      left: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
+      gap: 14px;
+      padding: 18px 12px;
+      border-radius: var(--radius-hud);
+      background: rgba(8, 12, 22, 0.82);
+      backdrop-filter: var(--lg-backdrop-filter);
+      -webkit-backdrop-filter: var(--lg-backdrop-filter);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: var(--lg-specular-glow);
     }
-    .directive-label {
-      font: 600 0.72rem var(--mono);
-      color: var(--accent);
+
+    .stratum-node {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.4rem;
-    }
-    .directive-textarea {
-      width: 100%;
-      height: 70px;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 6px;
-      color: #f1f5f9;
-      font: 400 0.78rem var(--mono);
-      padding: 0.6rem;
-      resize: none;
-      outline: none;
-    }
-    .directive-textarea:focus {
-      border-color: var(--accent);
-    }
-    .directive-actions {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 0.5rem;
-    }
-    .directive-btn {
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid var(--accent);
-      color: #fff;
-      font: 600 0.7rem var(--mono);
-      border-radius: 6px;
-      padding: 0.5rem 0.8rem;
+      justify-content: center;
       cursor: pointer;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .stratum-node:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: var(--ink);
+    }
+
+    .stratum-node.active {
+      background: rgba(251, 191, 36, 0.18);
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.45);
+    }
+
+    .stratum-dot {
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan);
+      display: none;
+    }
+    .stratum-node.active .stratum-dot { display: block; }
+
+    /* Main Multi-Window Slide Viewport Container */
+    #deck-viewport {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.4rem;
-      transition: all 0.2s ease;
-    }
-    .directive-btn:hover {
-      background: var(--accent);
-      color: #000;
-    }
-    .directive-status {
-      font: 400 0.68rem var(--mono);
-      color: var(--soft);
-      line-height: 1.4;
+      padding: 90px 80px 100px 90px;
     }
 
-    /* 5-Level Architecture Breakdown Cards Grid */
-    .cards-grid {
+    /* Single Slide Focus Card Window */
+    .focus-slide-window {
+      width: 100%;
+      max-width: 1380px;
+      height: 100%;
+      max-height: 780px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-top: 0.5rem;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      pointer-events: auto;
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
-    .card {
-      background: var(--paper-card);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--rule);
-      border-radius: 8px;
-      padding: 1.1rem;
+
+    .slide-left-column, .slide-right-column {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
-      position: relative;
-    }
-    .card-tag {
-      font: 600 0.68rem var(--mono);
-      color: var(--accent);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-    .card h2 { font: 600 0.95rem var(--sans); color: #fff; }
-    .card p { font: 400 0.78rem/1.55 var(--sans); color: var(--muted); }
-    .card code {
-      background: rgba(255,255,255,0.06);
-      padding: 0.1rem 0.35rem;
-      border-radius: 3px;
-      font-size: 0.72rem;
-      font-family: var(--mono);
-      color: #cbd5e1;
+      gap: 20px;
+      height: 100%;
     }
 
-    @media (max-width: 1024px) {
-      .viewport-grid { grid-template-columns: 1fr; }
-      .channel-strip { grid-template-columns: repeat(3, 1fr); }
-      .cards-grid { grid-template-columns: 1fr; }
+    /* Liquid Glass Panels */
+    .glass-hud-window {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: var(--lg-backdrop-filter);
+      -webkit-backdrop-filter: var(--lg-backdrop-filter);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius-hud);
+      box-shadow: var(--lg-specular-glow);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .glass-hud-window::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: var(--lg-specular-rim);
+    }
+
+    .slide-header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      align-self: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-family: var(--serif);
+      font-size: 38px;
+      line-height: 1.15;
+      font-weight: 400;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+
+    .slide-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    /* Metrics Grid */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .metric-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metric-label { font-family: var(--mono); font-size: 11px; color: var(--soft); }
+    .metric-val { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--accent-cyan); }
+    .metric-trend { font-size: 10px; color: var(--accent-emerald); }
+
+    /* Core Insight & Pillars */
+    .pillars-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .pillar-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px 8px 8px 4px;
+      padding: 12px 14px;
+    }
+
+    .pillar-name { font-size: 13px; font-weight: 600; color: #f1f5f9; margin-bottom: 4px; }
+    .pillar-detail { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+    /* Advisory Council Window */
+    .advisory-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .advisor-meta { display: flex; flex-direction: column; }
+    .advisor-name { font-size: 16px; font-weight: 700; color: var(--accent); }
+    .advisor-role { font-family: var(--mono); font-size: 11px; color: var(--soft); }
+
+    .advisor-quote {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      font-style: italic;
+      margin-bottom: 16px;
+      position: relative;
+      padding-left: 14px;
+      border-left: 2px solid var(--accent-cyan);
+    }
+
+    .roast-verdict {
+      background: rgba(236, 72, 153, 0.08);
+      border: 1px solid rgba(236, 72, 153, 0.25);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .verdict-tag { font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--accent-pink); margin-bottom: 4px; }
+    .verdict-text { font-size: 12px; color: #cbd5e1; line-height: 1.45; }
+
+    .action-item {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #a7f3d0;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* 5-Window Holographic Grid Mode */
+    .grid-slide-deck {
+      display: none;
+      width: 100%;
+      height: 100%;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      pointer-events: auto;
+    }
+
+    .grid-card {
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: var(--lg-backdrop-filter);
+      -webkit-backdrop-filter: var(--lg-backdrop-filter);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-hud);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .grid-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--accent);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 24px rgba(251, 191, 36, 0.25);
+    }
+
+    .grid-card.active {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.35);
+    }
+
+    /* Bottom Slide Deck Controls */
+    .hud-bottom-controls {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      background: rgba(8, 12, 22, 0.88);
+      backdrop-filter: var(--lg-backdrop-filter);
+      -webkit-backdrop-filter: var(--lg-backdrop-filter);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+    }
+
+    .hud-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: #f1f5f9;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hud-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .hud-btn:active { transform: translateY(0); }
+
+    .hud-btn--primary {
+      background: rgba(251, 191, 36, 0.18);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .hud-btn--primary:hover {
+      background: var(--accent);
+      color: #080c16;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+    }
+
+    .hud-btn--burst {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+    .hud-btn--burst:hover {
+      background: var(--accent-cyan);
+      color: #080c16;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
     }
   </style>
 </head>
 <body>
-  <main class="frame">
-    <!-- Top HUD Header -->
-    <header class="hud-bar">
-      <div class="hud-title-wrap">
-        <div class="eyebrow">3D Volumetric Axonometric · Motion Engine · Reverse-Engineered (3ujOdi9W1EI)</div>
-        <h1>Fable 5.1 Agentic OS · Five-Level Interactive Blueprint</h1>
-      </div>
-      <div class="hud-stats">
-        <div class="hud-pill">FPS: <span class="num" id="fps-counter">60</span></div>
-        <div class="hud-pill">L1-L5 CHANNELS: <span class="num">5 ACTIVE</span></div>
-        <div class="hud-pill">PROMPT CACHE: <span class="num">92.4%</span></div>
-      </div>
-    </header>
 
-    <!-- 5-Channel Interactive Switcher -->
-    <nav class="channel-strip" role="toolbar" aria-label="5-Level Transition Controller">
-      <button class="channel-btn active" data-channel="all">
-        <span class="tag">CHANNEL 0</span>
-        <strong>ALL STRATA (3D)</strong>
-      </button>
-      <button class="channel-btn" data-channel="1">
-        <span class="tag">LEVEL 1</span>
-        <strong>WHEEL &amp; ROI</strong>
-      </button>
-      <button class="channel-btn" data-channel="2">
-        <span class="tag">LEVEL 2</span>
-        <strong>ONE BRAIN WIKI</strong>
-      </button>
-      <button class="channel-btn" data-channel="3">
-        <span class="tag">LEVEL 3</span>
-        <strong>MINISTRY MoE</strong>
-      </button>
-      <button class="channel-btn" data-channel="4">
-        <span class="tag">LEVEL 4</span>
-        <strong>NIGHTLY DREAM</strong>
-      </button>
-      <button class="channel-btn" data-channel="5">
-        <span class="tag">LEVEL 5</span>
-        <strong>VOICE &amp; MUTATE</strong>
-      </button>
-    </nav>
+  <!-- WebGL Canvas for 3D Motion Models & Cross-Window Conduits -->
+  <canvas id="webgl-stage"></canvas>
 
-    <!-- 3D Spatial Canvas + Side Inspection Dock -->
-    <section class="viewport-grid">
-      <div class="canvas-container">
-        <div class="canvas-overlay-ui">
-          <div class="camera-hud" id="camera-hud-text">ORBIT: AXONOMETRIC 45° · LAYER HEIGHT: 4.8u</div>
-          <div class="camera-hud" id="active-stratum-text">FOCUS: FULL VOLUMETRIC STACK</div>
-        </div>
-        <div id="three-viewport"></div>
-        <div class="orbit-controls-hint">Left Click + Drag: Orbit · Scroll: Zoom · Right Click: Pan</div>
-      </div>
+  <!-- Top Pill Bar -->
+  <header class="hud-top-bar">
+    <div class="hud-slide-indicator">
+      <span class="badge" id="slide-badge-pill">SLIDE 01 / 05</span>
+      <span id="slide-name-pill">LEVEL 1 · FABLE 5.1 POWER WHEEL</span>
+    </div>
+    <div class="hud-telemetry">
+      <div class="hud-fps"><span class="hud-dot"></span><span id="fps-counter">60.0 FPS</span></div>
+      <div class="hud-tokens">⚡ Ponytail: <span id="token-saved-val">94.8% Saved</span></div>
+    </div>
+    <div class="hud-mode-switcher">
+      <button class="hud-mode-btn active" id="btn-mode-focus" onclick="DeckEngine.setMode('focus')">Focus Slide</button>
+      <button class="hud-mode-btn" id="btn-mode-grid" onclick="DeckEngine.setMode('grid')">5-Window Grid</button>
+    </div>
+  </header>
 
-      <!-- Live Inspection & Mutation Telemetry Dock -->
-      <aside class="side-dock">
-        <div class="dock-header">
-          <div class="dock-title">
-            <span id="dock-title-text">Channel Inspection</span>
-          </div>
-          <span class="badge" id="dock-badge">ACTIVE</span>
-        </div>
+  <!-- Left Stratum Minimap Navigation -->
+  <nav class="hud-stratum-minimap" aria-label="Slide Stratum">
+    <div class="stratum-node active" data-index="0" onclick="DeckEngine.goToSlide(0)">L1<div class="stratum-dot"></div></div>
+    <div class="stratum-node" data-index="1" onclick="DeckEngine.goToSlide(1)">L2<div class="stratum-dot"></div></div>
+    <div class="stratum-node" data-index="2" onclick="DeckEngine.goToSlide(2)">L3<div class="stratum-dot"></div></div>
+    <div class="stratum-node" data-index="3" onclick="DeckEngine.goToSlide(3)">L4<div class="stratum-dot"></div></div>
+    <div class="stratum-node" data-index="4" onclick="DeckEngine.goToSlide(4)">L5<div class="stratum-dot"></div></div>
+  </nav>
 
-        <div class="dock-content" id="dock-body">
-          <p id="dock-desc">
-            Complete 5-strata agentic operating system architecture. Use top channel pills to trigger seamless 3D camera transitions and exploded axonometric layer focus.
-          </p>
+  <!-- Slide Deck Viewport -->
+  <main id="deck-viewport">
 
-          <div class="dock-stat-box">
-            <span class="stat-label">Model Engine Routing</span>
-            <span class="stat-val" id="dock-stat-engine">Claude Fable 5.1</span>
-            <div class="stat-bar"><div class="stat-fill" id="dock-bar-fill" style="width: 90%;"></div></div>
+    <!-- Focus Slide Mode (Dual HUD Windows) -->
+    <div class="focus-slide-window" id="focus-slide-window">
+
+      <!-- Left HUD Window: Architecture & Metrics -->
+      <section class="slide-left-column">
+        <div class="glass-hud-window" style="flex: 1;">
+          <div class="slide-header-badge" id="slide-badge">LEVEL 01 // FOUNDATION</div>
+          <h1 class="slide-title" id="slide-title">Fable 5.1 Power Wheel & Missing Skill ROI</h1>
+          <p class="slide-subtitle" id="slide-subtitle">Effort Dial Dynamic Calibration & Autonomous Skill Discovery</p>
+
+          <div class="pillars-container" id="slide-pillars">
+            <!-- Dynamically populated -->
           </div>
 
-          <div class="dock-stat-box">
-            <span class="stat-label">Token Conservation Factor</span>
-            <span class="stat-val" id="dock-stat-tokens">7.8x Ponytail Ratio</span>
-          </div>
-
-          <div class="dock-stat-box">
-            <span class="stat-label">Channel Latency / Sync</span>
-            <span class="stat-val" id="dock-stat-latency">14ms Gateway Pulse</span>
-          </div>
-        </div>
-
-        <button class="mutation-trigger-btn" id="btn-trigger-mutation">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-          TRIGGER LEVEL MUTATION
-        </button>
-      </aside>
-    </section>
-
-    <!-- Multi-Palette Suite Tab Bar -->
-    <nav class="suite-palette-bar" role="tablist" aria-label="Suite Palette Selector">
-      <button class="palette-tab-btn active" data-palette="narrative">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-        PALETTE 01: NARRATIVE STORYBOARD
-      </button>
-      <button class="palette-tab-btn" data-palette="council">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        PALETTE 02: ADVISORY COUNCIL DEBATE
-      </button>
-      <button class="palette-tab-btn" data-palette="toolchain">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-        PALETTE 03: MULTI-TOOLCHAIN STACK
-      </button>
-      <button class="palette-tab-btn" data-palette="telemetry">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        PALETTE 04: LIVE TELEMETRY &amp; ROI
-      </button>
-      <button class="palette-tab-btn" data-palette="directive">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        PALETTE 05: DIRECTIVE DISPATCHER
-      </button>
-    </nav>
-
-    <!-- Multi-Palette Container -->
-    <div class="multi-palette-container">
-      <!-- PALETTE 01: Narrative Storyboard -->
-      <section class="palette-panel active" id="palette-narrative">
-        <div class="abstract-header">
-          <h2>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-            Visualized OS Abstract · Architectural Narrative
-          </h2>
-          <span class="badge">NARRATIVE SYNCHRONIZED</span>
-        </div>
-        <p style="font: 400 0.8rem/1.5 var(--sans); color: var(--muted); margin: 0;">
-          Select any level card below to focus the 3D WebGL camera and view individual stratum properties.
-        </p>
-        <div class="abstract-narrative-flow">
-          <div class="story-card active" data-story="1">
-            <span class="step-num">PHASE 01 · LEVEL 1</span>
-            <h3>Fable 5 Wheel &amp; ROI Dial</h3>
-            <p>Model selection + effort calibration + skill ROI analysis. Bridges cognitive capacity to daily revenue.</p>
-            <div class="toolchain-pill-row">
-              <span class="tool-pill active">ponytail</span>
-              <span class="tool-pill">diagram-design</span>
-              <span class="tool-pill">threejs-interaction</span>
-            </div>
-          </div>
-
-          <div class="story-card" data-story="2">
-            <span class="step-num">PHASE 02 · LEVEL 2</span>
-            <h3>One Brain Unified Memory</h3>
-            <p>Tri-harness memory graph. Karpathy Obsidian WIKI_ ⇄ Hermes ⇄ Claude Code vector sync.</p>
-            <div class="toolchain-pill-row">
-              <span class="tool-pill active">base-graph</span>
-              <span class="tool-pill active">base-ast</span>
-              <span class="tool-pill">graphify</span>
-            </div>
-          </div>
-
-          <div class="story-card" data-story="3">
-            <span class="step-num">PHASE 03 · LEVEL 3</span>
-            <h3>Ministry of Agents MoE</h3>
-            <p>Fable 5.1 Orchestrator commanding DeepSeek V4 Pro, GLM 5.2, GPT 5.5 in debate council with prompt caching.</p>
-            <div class="toolchain-pill-row">
-              <span class="tool-pill active">roast-room</span>
-              <span class="tool-pill">multiplayer-agents</span>
-              <span class="tool-pill">threejs-materials</span>
-            </div>
-          </div>
-
-          <div class="story-card" data-story="4">
-            <span class="step-num">PHASE 04 · LEVEL 4</span>
-            <h3>Overnight Dreaming Engine</h3>
-            <p>Nightly cron daemon aggregating journals, AntiGravity, and git diffs into actionable morning execution cards.</p>
-            <div class="toolchain-pill-row">
-              <span class="tool-pill active">blender-kiln</span>
-              <span class="tool-pill">motionsites</span>
-              <span class="tool-pill">threejs-animation</span>
-            </div>
-          </div>
-
-          <div class="story-card" data-story="5">
-            <span class="step-num">PHASE 05 · LEVEL 5</span>
-            <h3>Voice &amp; Live UI Mutation</h3>
-            <p>Glaido STT + ElevenLabs neural TTS executing real-time DOM/CSS self-mutation and dynamic 3D telemetry shifts.</p>
-            <div class="toolchain-pill-row">
-              <span class="tool-pill active">impeccable</span>
-              <span class="tool-pill active">threejs-shaders</span>
-              <span class="tool-pill">elevenlabs</span>
-            </div>
+          <div class="metrics-row" id="slide-metrics">
+            <!-- Dynamically populated -->
           </div>
         </div>
       </section>
 
-      <!-- PALETTE 02: Advisory Council Debate -->
-      <section class="palette-panel" id="palette-council">
-        <div class="abstract-header">
-          <h2>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Advisory Council &amp; Strategic Debate Roster (/roast-room)
-          </h2>
-          <span class="badge" style="border-color:#10b981; color:#10b981;">COUNCIL ACTIVE</span>
-        </div>
-        <div class="council-grid">
-          <div class="advisor-card">
-            <span class="advisor-role">Architect · Scale &amp; Reversibility</span>
-            <span class="advisor-name">Jeff Bezos</span>
-            <p class="advisor-quote">"All 5 strata are Type 2 two-way doors except the One Brain memory schema. Keep the prompt cache locked to preserve Day 1 velocity."</p>
-            <div class="advisor-verdict verdict-pass">VERDICT: PASS (PR/FAQ Gated)</div>
-          </div>
-          <div class="advisor-card">
-            <span class="advisor-role">Pragmatist · ROI &amp; Cash Speed</span>
-            <span class="advisor-name">Alex Hormozi</span>
-            <p class="advisor-quote">"Level 1 Wheel gives immediate $1,200/day return by cutting token waste. If L5 voice adds latency without conversions, delete it."</p>
-            <div class="advisor-verdict verdict-pass">VERDICT: PASS (ROI &gt; 8x)</div>
-          </div>
-          <div class="advisor-card">
-            <span class="advisor-role">Critic · First-Principles Deletion</span>
-            <span class="advisor-name">Elon Musk</span>
-            <p class="advisor-quote">"Delete intermediate API shims between Fable 5.1 and DeepSeek V4. Step 2 of algorithm: delete the part. If not adding back 10%, you're not deleting enough."</p>
-            <div class="advisor-verdict verdict-caution">VERDICT: OPTIMIZE SHIMS</div>
-          </div>
-          <div class="advisor-card">
-            <span class="advisor-role">Skeptic · Inversion &amp; Moat</span>
-            <span class="advisor-name">Warren Buffett &amp; Charlie Munger</span>
-            <p class="advisor-quote">"Invert: How does this OS fail? By vector memory corruption or runaway agent loop spend. Guard the base graph."</p>
-            <div class="advisor-verdict verdict-strict">VERDICT: STRICT MOAT</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PALETTE 03: Multi-Toolchain Stack -->
-      <section class="palette-panel" id="palette-toolchain">
-        <div class="abstract-header">
-          <h2>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-            Multi-Toolchain &amp; Inventory Skill Integration Matrix
-          </h2>
-          <span class="badge" style="border-color:#38bdf8; color:#38bdf8;">TOOLCHAIN SYNCHRONIZED</span>
-        </div>
-        <div class="toolchain-matrix-grid">
-          <div class="toolchain-block">
-            <h4><span class="tool-pill active">blender-kiln</span> 3D Asset Forge</h4>
-            <p>Automated mesh cleanup, GLTF physical material tuning, and procedural glass transmission generation for spatial layers.</p>
-          </div>
-          <div class="toolchain-block">
-            <h4><span class="tool-pill active">threejs-suite</span> Volumetric Engine</h4>
-            <p>Three.js r128 WebGL rendering with OrbitControls, custom shader materials, particle conduits, and real-time raycasting.</p>
-          </div>
-          <div class="toolchain-block">
-            <h4><span class="tool-pill active">diagram-design</span> Architectural Visuals</h4>
-            <p>45-pattern visual grammar generating high-density technical layouts, exploded axonometrics, and state charts.</p>
-          </div>
-          <div class="toolchain-block">
-            <h4><span class="tool-pill active">motionsites</span> Motion Choreography</h4>
-            <p>GSAP 3.12.5 multi-channel camera easing paired with Anime.js kinetic border pulses and Lenis smooth scrolling.</p>
-          </div>
-          <div class="toolchain-block">
-            <h4><span class="tool-pill active">ponytail</span> Token Optimizer</h4>
-            <p>Input token compression engine saving 7.8x input tokens via base graph AST extraction before reading raw files.</p>
-          </div>
-          <div class="toolchain-block">
-            <h4><span class="tool-pill active">impeccable</span> UI/UX Craft Standards</h4>
-            <p>Apple iOS 26 / Linear liquid-glass design language, specular wireframe rims, and non-clipping HUD containers.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- PALETTE 04: Live Telemetry & ROI -->
-      <section class="palette-panel" id="palette-telemetry">
-        <div class="abstract-header">
-          <h2>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Agentic OS Real-Time Performance &amp; ROI Telemetry
-          </h2>
-          <span class="badge" style="border-color:#ec4899; color:#ec4899;">LIVE STREAMING</span>
-        </div>
-        <div class="cards-grid">
-          <div class="card l1">
-            <span class="level-tag">LEVEL 01 METRICS</span>
-            <h3>ROI &amp; Token Yield</h3>
-            <p>Daily savings: <strong>$1,240 / day</strong> via dynamic effort routing. Input compression: <strong>88.4%</strong>.</p>
-          </div>
-          <div class="card l2">
-            <span class="level-tag">LEVEL 02 METRICS</span>
-            <h3>Memory Graph Coherence</h3>
-            <p>Graph nodes: <strong>14,820</strong>. Cross-harness sync latency: <strong>12ms</strong>. Hallucination rate: <strong>&lt;0.02%</strong>.</p>
-          </div>
-          <div class="card l3">
-            <span class="level-tag">LEVEL 03 METRICS</span>
-            <h3>MoE Consensus Speed</h3>
-            <p>Average debate rounds: <strong>1.4</strong>. Prompt cache reuse: <strong>94.8%</strong>. Token burn reduction: <strong>6.2x</strong>.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- PALETTE 05: Directive Dispatcher -->
-      <section class="palette-panel" id="palette-directive">
-        <div class="abstract-header">
-          <h2>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            Developer Architectural Advice &amp; Directive Studio
-          </h2>
-          <span class="badge">DEVELOPER OVERRIDE</span>
-        </div>
-        <div class="directive-studio" style="margin-top:0;">
-          <div class="directive-inputs">
-            <div class="directive-label">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-              DISPATCH ARCHITECTURAL DIRECTIVES TO AGENTIC RUNTIME
+      <!-- Right HUD Window: Advisory Council & Action Verdict -->
+      <section class="slide-right-column">
+        <div class="glass-hud-window" style="flex: 1;">
+          <div class="advisory-header">
+            <div class="advisor-meta">
+              <span class="advisor-name" id="advisor-name">Alex Hormozi</span>
+              <span class="advisor-role" id="advisor-role">Value Equation & Unit Economics Specialist</span>
             </div>
-            <textarea class="directive-textarea" id="developer-directive-text" placeholder="Type or dictate architectural guidelines for this stratum (e.g. 'Integrate Blender Kiln 3D asset forge into Level 4 dreaming pipeline with automated GLTF optimization...')."></textarea>
+            <span style="font-size: 20px;">⚡</span>
           </div>
-          <div class="directive-actions">
-            <button class="directive-btn" id="btn-dispatch-directive">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              DISPATCH DIRECTIVE TO RUNTIME
-            </button>
-            <div class="directive-status" id="directive-log">
-              Status: Ready. Awaiting developer architectural directives.
+
+          <blockquote class="advisor-quote" id="advisor-quote">
+            "If you spend 200,000 raw input tokens reading entire repositories every turn, your unit economics are broken."
+          </blockquote>
+
+          <div class="roast-verdict">
+            <div class="verdict-tag">ROAST VERDICT</div>
+            <div class="verdict-text" id="advisor-verdict">
+              Brute-force context stuffing is an amateur tax. Caching at 94.8% flips your CAC:LTV equation from bleeding capital to printing $1,240 daily margin.
             </div>
           </div>
+
+          <div class="action-item" style="margin-top: auto;">
+            <span>🛡️</span>
+            <span id="advisor-action">Clamp static system headers into durable prefix caches. Gate calls with token ROI thresholds.</span>
+          </div>
         </div>
       </section>
+
     </div>
 
-    <!-- Architecture Pillars & Video Storyline Fidelity -->
-    <section class="cards-grid">
-      <article class="card">
-        <div class="card-tag">01 · Level 1 &amp; Level 2 Foundation</div>
-        <h2>Giving Wheel &amp; One Brain</h2>
-        <p>Hermes effort dial (Low/Med/High/XHigh) + missing skill ROI calculator. Unifies Obsidian Karpathy wiki with Hermes and Claude Code local memory using <code>base graph</code>, <code>base ast</code>, and Ponytail compression.</p>
-      </article>
-      <article class="card">
-        <div class="card-tag">02 · Level 3 &amp; Level 4 Scaled MoE</div>
-        <h2>Ministry of Agents &amp; Dreaming</h2>
-        <p>Fable 5.1 orchestrating a debate council (DeepSeek V4 Pro, GLM 5.2, GPT 5.5) via OpenRouter with zero-waste shared prompt caching. Nightly dream daemon reviews chats, AntiGravity, and memory to generate morning actions.</p>
-      </article>
-      <article class="card">
-        <div class="card-tag">03 · Level 5 Voice &amp; Self-Mutation</div>
-        <h2>Gold Plasma Live UI Mutation</h2>
-        <p>Voice-driven real-time DOM and theme self-mutation with Glaido STT and ElevenLabs neural TTS. Directly alters live views, telemetry graphs, and design system tokens on voice commands.</p>
-      </article>
-    </section>
+    <!-- 5-Window Grid Mode -->
+    <div class="grid-slide-deck" id="grid-slide-deck">
+      <!-- 5 Cards populated dynamically -->
+    </div>
+
   </main>
 
+  <!-- Bottom Interactive Slide Controls -->
+  <footer class="hud-bottom-controls">
+    <button class="hud-btn" onclick="DeckEngine.prevSlide()">← Prev</button>
+    <button class="hud-btn hud-btn--primary" id="btn-autoplay" onclick="DeckEngine.toggleAutoplay()">▶ Autoplay Deck</button>
+    <button class="hud-btn" onclick="DeckEngine.nextSlide()">Next →</button>
+    <button class="hud-btn hud-btn--burst" onclick="DeckEngine.triggerBurst()">⚡ Token Burst</button>
+    <button class="hud-btn" onclick="DeckEngine.explodeGeometry()">💥 Explode 3D</button>
+    <button class="hud-btn" id="btn-voice-line" onclick="DeckEngine.toggleVoiceLine()">🎙️ Voice Line</button>
+  </footer>
+
+  <!-- Slide Data & 3D Interactive Spatial Engine -->
   <script>
-    // Initialize Lenis Smooth Scroll
-    const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
-    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-    requestAnimationFrame(raf);
-
-    // Three.js Volumetric Exploded Axonometric Setup
-    const container = document.getElementById('three-viewport');
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x06080e);
-
-    const camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(24, 28, 30);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    container.appendChild(renderer.domElement);
-
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.target.set(0, 0, 0);
-    controls.maxPolarAngle = Math.PI / 2.05;
-
-    // Ambient & Directional Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0xffeedd, 1.2);
-    dirLight.position.set(15, 30, 20);
-    dirLight.castShadow = true;
-    scene.add(dirLight);
-
-    const bluePoint = new THREE.PointLight(0x38bdf8, 2, 40);
-    bluePoint.position.set(-15, 10, -10);
-    scene.add(bluePoint);
-
-    const goldPoint = new THREE.PointLight(0xf59e0b, 2.5, 40);
-    goldPoint.position.set(15, 15, 15);
-    scene.add(goldPoint);
-
-    // Grid Floor
-    const gridHelper = new THREE.GridHelper(40, 40, 0x1e293b, 0x0f172a);
-    gridHelper.position.y = -6;
-    scene.add(gridHelper);
-
-    // 5-Level Volumetric Strata Creation
-    const strataGroup = new THREE.Group();
-    scene.add(strataGroup);
-
-    const strataData = [
-      { id: 1, name: "Level 1: Giving Wheel & ROI", color: 0x10b981, yBase: -4, desc: "Hermes Model Selector, Effort Dial (L/M/H/XH), and Missing Skill $/Day ROI Engine.", engine: "Claude Fable 5.1 (Hermes)", tokens: "94.2% Optimization", latency: "8ms" },
-      { id: 2, name: "Level 2: One Brain Unified Memory", color: 0x8b5cf6, yBase: -1.5, desc: "Karpathy Obsidian WIKI_ ⇄ Hermes ⇄ Claude Code unified memory graph with live topic clustering.", engine: "OneBrain Vector/AST Sync", tokens: "8.4x Token Gain", latency: "12ms" },
-      { id: 3, name: "Level 3: Ministry of Agents (MoE)", color: 0xf59e0b, yBase: 1.0, desc: "Fable 5.1 Orchestrator + DeepSeek V4 Pro, GLM 5.2, GPT 5.5 Debate Council with shared prompt cache.", engine: "MoE Quad-Council", tokens: "98.6% Cache Hit", latency: "18ms" },
-      { id: 4, name: "Level 4: Overnight Dreaming Daemon", color: 0xec4899, yBase: 3.5, desc: "Nightly cron daemon reading chats, code, and AntiGravity to synthesize morning execution cards.", engine: "Dreaming Sub-Agency", tokens: "Batch Ingest Mode", latency: "Passive Cron" },
-      { id: 5, name: "Level 5: Gold Plasma Voice Line", color: 0x38bdf8, yBase: 6.0, desc: "Glaido STT + ElevenLabs TTS voice loop with autonomous real-time DOM/CSS self-mutation capabilities.", engine: "Voice Neural Pipeline", tokens: "Real-time Stream", latency: "220ms Voice-to-UI" }
+    // 5-Level Architectural Deck Dataset
+    const DECK_DATA = [
+      {
+        id: "level-1",
+        level: 1,
+        badge: "LEVEL 01 // FOUNDATION",
+        title: "Fable 5.1 Power Wheel & Missing Skill ROI",
+        subtitle: "Effort Dial Dynamic Calibration & Autonomous Skill Discovery",
+        color: "#10b981",
+        metrics: [
+          { label: "Daily Savings", value: "$1,240/d", trend: "+312% vs brute force" },
+          { label: "Cache Reuse", value: "94.8%", trend: "128k static KV prefix" },
+          { label: "Efficiency", value: "18.4x", trend: "Ponytail input suppression" }
+        ],
+        pillars: [
+          { name: "Effort Dial Calibration", detail: "Low (Haiku triage), Med (Sonnet balanced), High (Opus deep AST), Max (Quad-Model Council)." },
+          { name: "Missing Skill ROI Discovery", detail: "Detects tool vacuum, checks cost-to-build vs manual token churn, auto-scaffolds missing MCP skill." },
+          { name: "Ponytail Token Defense", detail: "Pre-execution surgical compression drops context payload size before raw file ingress." }
+        ],
+        advisory: {
+          advisor: "Alex Hormozi",
+          role: "Value Equation & Unit Economics Specialist",
+          quote: "If you spend 200,000 raw input tokens reading entire repositories every turn, your unit economics are broken. Make the dream outcome instant and the perceived effort zero.",
+          verdict: "Brute-force context stuffing is an amateur tax. Caching at 94.8% and auto-generating skills flips your CAC:LTV equation from bleeding capital to printing $1,240 daily margin.",
+          action: "Clamp static system headers into durable prefix caches. Gate every multi-agent call with token ROI thresholds."
+        }
+      },
+      {
+        id: "level-2",
+        level: 2,
+        badge: "LEVEL 02 // COGNITION",
+        title: "One Brain Unified Memory",
+        subtitle: "Tri-Layer Graph Fusion & Zero-Repetition Cognitive Anchor",
+        color: "#8b5cf6",
+        metrics: [
+          { label: "Graph Nodes", value: "14,820", trend: "Relational cross-workspace AST" },
+          { label: "Repetition", value: "0%", trend: "Absolute zero query amnesia" },
+          { label: "Retrieval", value: "12ms", trend: "Local vector + AST graph hop" }
+        ],
+        pillars: [
+          { name: "Karpathy Obsidian Core", detail: "Markdown-native concept lattice serving as human-readable and agent-indexed ground truth." },
+          { name: "Relational AST Graph", detail: "Pre-indexed entity call trees, interfaces, and cross-workspace package dependencies." },
+          { name: "Auto-Evolving Memory Sync", detail: "Hook-driven updates to CLAUDE.md, AGENTS.md, and MEMORY.md on every decision." }
+        ],
+        advisory: {
+          advisor: "Charlie Munger",
+          role: "Mental Models & Lollapalooza Compounding Specialist",
+          quote: "Show me a system that forgets what it learned five minutes ago, and I will show you bankruptcy. You need a lattice of mental models operating in compound loops.",
+          verdict: "Operating without a unified knowledge graph violates the circle of competence. Storing 14,820 nodes locally removes amnesia tax and turns every mistake into permanent competitive advantage.",
+          action: "Enforce bidirectional graph updates on all agent completion hooks. Never let an agent exit without persisting distilled facts."
+        }
+      },
+      {
+        id: "level-3",
+        level: 3,
+        badge: "LEVEL 03 // GOVERNANCE",
+        title: "Ministry of Agents Quad-Council",
+        subtitle: "Cross-Model Consensus Synthesis & Adversarial Gatekeeping",
+        color: "#f59e0b",
+        metrics: [
+          { label: "Parallel MoE", value: "4 Models", trend: "Fable 5.1 + DeepSeek + GLM + GPT" },
+          { label: "Shared Cache", value: "91.2%", trend: "Universal prefix alignment" },
+          { label: "Consensus", value: "99.4%", trend: "Pre-planning fact verification" }
+        ],
+        pillars: [
+          { name: "Quad-Model Topology", detail: "Orchestrator routes logic checks, code synthesis, and architectural security to specialized weights." },
+          { name: "Fact-Forcing Gate", detail: "Strict pre-flight requirement verifying local environment facts before agent execution." },
+          { name: "Adversarial Synthesis", detail: "Discrepancies trigger automated multi-turn debate until consensus threshold is reached." }
+        ],
+        advisory: {
+          advisor: "Jeff Bezos",
+          role: "Two-Way Doors & Working Backwards Specialist",
+          quote: "Treat every architectural step as a Type 1 decision until proven reversible. When four distinct frontier models debate facts before execution, irreversible errors drop to zero.",
+          verdict: "Single-agent autonomy without peer review is undisciplined execution. The MoE Quad-Council turns code generation into a high-velocity, high-conviction decision mechanism.",
+          action: "Implement quorum voting on critical path modifications. If one model dissents on safety or AST integrity, halt and arbitrate."
+        }
+      },
+      {
+        id: "level-4",
+        level: 4,
+        badge: "LEVEL 04 // SYNTHESIS",
+        title: "Overnight Dreaming Engine",
+        subtitle: "Autonomous Sleep-Cycle Refactoring & Action Card Generation",
+        color: "#ec4899",
+        metrics: [
+          { label: "Nightly Cycle", value: "6.0 Hours", trend: "00:00 - 06:00 UTC continuous" },
+          { label: "Action Cards", value: "12 Cards", trend: "Ready for operator triage at 06:00" },
+          { label: "AntiGravity", value: "-4,200 LOC", trend: "Dead code eliminated nightly" }
+        ],
+        pillars: [
+          { name: "AntiGravity Refactoring", detail: "Identifies duplicate logic, stale abstractions, and deprecated dependencies to reduce codebase mass." },
+          { name: "Journal Consolidation", detail: "Distills developer prompts and raw agent logs into high-level lessons and architecture records." },
+          { name: "06:00 Morning Briefing", detail: "Delivers prioritized, one-click mergeable cards with zero cognitive friction for operator." }
+        ],
+        advisory: {
+          advisor: "Elon Musk",
+          role: "5-Step Algorithm & First Principles Specialist",
+          quote: "Step one: Make requirements less dumb. Step two: Delete the part. Step three: Simplify. Step four: Accelerate cycle time. If you are not adding back 10% of what you deleted, you are not deleting enough.",
+          verdict: "Your code is bloatware if it does not shrink while you sleep. The Dreaming Engine deletes dead weight and hands you high-velocity action cards at dawn.",
+          action: "Enforce negative net-LOC metrics in nightly dreaming pipelines. Automatically reject PRs that add complexity without removing obsolete code."
+        }
+      },
+      {
+        id: "level-5",
+        level: 5,
+        badge: "LEVEL 05 // MANIFESTATION",
+        title: "Gold Plasma Voice Line & UI Self-Mutation",
+        subtitle: "Sub-100ms Multimodal Control & Runtime DOM Metamorphism",
+        color: "#00f0ff",
+        metrics: [
+          { label: "Audio Latency", value: "85ms", trend: "Glaido STT + ElevenLabs TTS" },
+          { label: "DOM Mutation", value: "16ms", trend: "60 FPS dynamic CSS/DOM" },
+          { label: "Execution", value: "100%", trend: "Sandboxed local desktop runner" }
+        ],
+        pillars: [
+          { name: "Gold Plasma Voice Bridge", detail: "High-fidelity bi-directional streaming audio with real-time waveform visual feedback." },
+          { name: "Runtime Metamorphic DOM", detail: "Direct mutation of CSS variables, layout components, and visual themes driven by agent intent." },
+          { name: "Local Manifestation Engine", detail: "Safe desktop execution sandbox translating conversational intents into executed artifacts." }
+        ],
+        advisory: {
+          advisor: "Executive Council",
+          role: "Autonomous Manifestation Synthesis",
+          quote: "The interface boundary has dissolved. When voice intent translates into running code and self-adapting UI within 85 milliseconds, cognitive latency reaches human-machine parity.",
+          verdict: "Static dashboards belong in the stone age. Real-time UI mutation driven by voice is the definitive manifestation of an Agentic Operating System.",
+          action: "Bind voice event streams directly to DOM reactive states. Eliminate multi-step confirmation modals in favor of instantaneous reversible actions."
+        }
+      }
     ];
 
-    const layerPlanes = [];
-    const coreCores = [];
+    // =========================================================================
+    // 3D SPATIAL WEBGL ENGINE (Three.js r128)
+    // =========================================================================
+    const Spatial3D = {
+      scene: null,
+      camera: null,
+      renderer: null,
+      controls: null,
+      levelModels: [],
+      conduitParticles: null,
+      conduitCurve: null,
+      currentLevelIndex: 0,
+      exploded: false,
+      voiceActive: false,
+      clock: new THREE.Clock(),
 
-    strataData.forEach((stratum) => {
-      const layerObj = new THREE.Group();
-      layerObj.position.y = stratum.yBase;
-      layerObj.userData = stratum;
+      // Shaders
+      plasmaUniforms: {
+        uTime: { value: 0 },
+        uAudioLow: { value: 0.1 },
+        uAudioMid: { value: 0.1 },
+        uAudioHigh: { value: 0.1 }
+      },
 
-      // Glass Plane Slab
-      const slabGeo = new THREE.BoxGeometry(16, 0.35, 12);
-      const slabMat = new THREE.MeshPhysicalMaterial({
-        color: stratum.color,
-        transparent: true,
-        opacity: 0.35,
-        roughness: 0.1,
-        metalness: 0.1,
-        transmission: 0.7,
-        ior: 1.45,
-        reflectivity: 0.6,
-        clearcoat: 1.0
-      });
-      const slab = new THREE.Mesh(slabGeo, slabMat);
-      slab.receiveShadow = true;
-      layerObj.add(slab);
+      init: function() {
+        const canvas = document.getElementById('webgl-stage');
+        this.scene = new THREE.Scene();
+        this.scene.fog = new THREE.FogExp2(0x080c16, 0.035);
 
-      // Specular Wire Rim
-      const edges = new THREE.EdgesGeometry(slabGeo);
-      const lineMat = new THREE.LineBasicMaterial({ color: stratum.color, linewidth: 2 });
-      const wire = new THREE.LineSegments(edges, lineMat);
-      layerObj.add(wire);
+        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        this.camera.position.set(0, 0, 7.5);
 
-      // Central Neural Core Node
-      const coreGeo = new THREE.OctahedronGeometry(0.85, 0);
-      const coreMat = new THREE.MeshStandardMaterial({
-        color: stratum.color,
-        emissive: stratum.color,
-        emissiveIntensity: 0.6,
-        roughness: 0.2,
-        metalness: 0.8
-      });
-      const core = new THREE.Mesh(coreGeo, coreMat);
-      core.position.set(0, 0.8, 0);
-      layerObj.add(core);
-      coreCores.push(core);
+        this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-      // Satellite Component Cubes
-      for(let i = -1; i <= 1; i += 2) {
-        for(let j = -1; j <= 1; j += 2) {
-          const satGeo = new THREE.BoxGeometry(1.4, 0.5, 1.4);
-          const satMat = new THREE.MeshStandardMaterial({
-            color: 0x1e293b,
-            metalness: 0.5,
-            roughness: 0.3
-          });
-          const sat = new THREE.Mesh(satGeo, satMat);
-          sat.position.set(i * 5.5, 0.45, j * 4);
-          layerObj.add(sat);
+        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.05;
+        this.controls.maxDistance = 18;
+        this.controls.minDistance = 3.5;
 
-          const satEdge = new THREE.LineSegments(new THREE.EdgesGeometry(satGeo), new THREE.LineBasicMaterial({ color: stratum.color, opacity: 0.4, transparent: true }));
-          sat.add(satEdge);
+        this.buildLighting();
+        this.buildLevelModels();
+        this.buildCrossWindowConduits();
+
+        window.addEventListener('resize', () => this.onResize());
+        this.animate();
+      },
+
+      buildLighting: function() {
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        this.scene.add(ambientLight);
+
+        const dirLight1 = new THREE.DirectionalLight(0xfbbf24, 1.2);
+        dirLight1.position.set(5, 10, 7);
+        this.scene.add(dirLight1);
+
+        const dirLight2 = new THREE.DirectionalLight(0x00f0ff, 0.8);
+        dirLight2.position.set(-5, -10, -7);
+        this.scene.add(dirLight2);
+      },
+
+      buildLevelModels: function() {
+        // Level 1: Torus Knot + Gyroscopic Rings
+        const l1Group = new THREE.Group();
+        const knotGeo = new THREE.TorusKnotGeometry(1.1, 0.3, 128, 32, 2, 3);
+        const knotMat = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.2, metalness: 0.8, wireframe: true });
+        const knotMesh = new THREE.Mesh(knotGeo, knotMat);
+        l1Group.add(knotMesh);
+
+        const ringGeo1 = new THREE.TorusGeometry(1.9, 0.02, 16, 100);
+        const ringMat1 = new THREE.MeshBasicMaterial({ color: 0x34d399 });
+        const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
+        l1Group.add(ring1);
+        l1Group.position.set(0, 0, 0);
+        this.scene.add(l1Group);
+        this.levelModels.push(l1Group);
+
+        // Level 2: Dual Icosahedron Core + Orbiting Knowledge Nodes
+        const l2Group = new THREE.Group();
+        const icoGeo = new THREE.IcosahedronGeometry(1.0, 2);
+        const icoMat = new THREE.MeshStandardMaterial({ color: 0x8b5cf6, roughness: 0.3, metalness: 0.7, wireframe: true });
+        const icoMesh = new THREE.Mesh(icoGeo, icoMat);
+        l2Group.add(icoMesh);
+
+        const innerIcoGeo = new THREE.IcosahedronGeometry(0.55, 1);
+        const innerIcoMat = new THREE.MeshBasicMaterial({ color: 0xc084fc, wireframe: true });
+        const innerIco = new THREE.Mesh(innerIcoGeo, innerIcoMat);
+        l2Group.add(innerIco);
+        l2Group.position.set(20, 0, 0);
+        this.scene.add(l2Group);
+        this.levelModels.push(l2Group);
+
+        // Level 3: Dodecahedron Central Orchestrator + Satellite Octahedrons
+        const l3Group = new THREE.Group();
+        const dodecGeo = new THREE.DodecahedronGeometry(1.1, 0);
+        const dodecMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.1, metalness: 0.9, wireframe: true });
+        const dodecMesh = new THREE.Mesh(dodecGeo, dodecMat);
+        l3Group.add(dodecMesh);
+
+        for (let i = 0; i < 3; i++) {
+          const satGeo = new THREE.OctahedronGeometry(0.35, 0);
+          const satMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24, wireframe: true });
+          const satMesh = new THREE.Mesh(satGeo, satMat);
+          const angle = (i / 3) * Math.PI * 2;
+          satMesh.position.set(Math.cos(angle) * 2.2, Math.sin(angle) * 2.2, 0);
+          l3Group.add(satMesh);
         }
-      }
+        l3Group.position.set(40, 0, 0);
+        this.scene.add(l3Group);
+        this.levelModels.push(l3Group);
 
-      strataGroup.add(layerObj);
-      layerPlanes.push(layerObj);
-    });
+        // Level 4: 3-Tier Hexagonal Crystal Lattice
+        const l4Group = new THREE.Group();
+        for (let j = 0; j < 3; j++) {
+          const hexGeo = new THREE.CylinderGeometry(1.4 - j * 0.35, 1.4 - j * 0.35, 0.4, 6);
+          const hexMat = new THREE.MeshStandardMaterial({ color: 0xec4899, roughness: 0.2, metalness: 0.8, wireframe: true });
+          const hexMesh = new THREE.Mesh(hexGeo, hexMat);
+          hexMesh.position.y = (j - 1) * 0.8;
+          l4Group.add(hexMesh);
+        }
+        l4Group.position.set(60, 0, 0);
+        this.scene.add(l4Group);
+        this.levelModels.push(l4Group);
 
-    // Particle Stream Spine (Vertical Transit Conduit)
-    const particleCount = 140;
-    const particleGeo = new THREE.BufferGeometry();
-    const particlePos = new Float32Array(particleCount * 3);
+        // Level 5: Gold Plasma Simplex Noise Shader Sphere
+        const l5Group = new THREE.Group();
+        const vertexShader = `
+          uniform float uTime;
+          uniform float uAudioLow;
+          uniform float uAudioMid;
+          uniform float uAudioHigh;
+          varying float vDisplacement;
+          varying vec3 vNormal;
 
-    for (let i = 0; i < particleCount; i++) {
-      particlePos[i * 3] = (Math.random() - 0.5) * 4;
-      particlePos[i * 3 + 1] = (Math.random() - 0.5) * 14;
-      particlePos[i * 3 + 2] = (Math.random() - 0.5) * 4;
-    }
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
-    const particleMat = new THREE.PointsMaterial({
-      color: 0xf59e0b,
-      size: 0.25,
-      transparent: true,
-      opacity: 0.8,
-      blending: THREE.AdditiveBlending
-    });
-    const particleSystem = new THREE.Points(particleGeo, particleMat);
-    scene.add(particleSystem);
+          vec4 permute(vec4 x){ return mod(((x*34.0)+1.0)*x, 289.0); }
+          float snoise(vec3 v){
+            const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+            const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+            vec3 i  = floor(v + dot(v, C.yyy));
+            vec3 x0 = v - i + dot(i, C.xxx);
+            vec3 g = step(x0.yzx, x0.xyz);
+            vec3 l = 1.0 - g;
+            vec3 i1 = min(g.xyz, l.zxy);
+            vec3 i2 = max(g.xyz, l.zxy);
+            vec3 x1 = x0 - i1 + 1.0 * C.xxx;
+            vec3 x2 = x0 - i2 + 2.0 * C.xxx;
+            vec3 x3 = x0 - 1.0 + 3.0 * C.xxx;
+            i = mod(i, 289.0);
+            vec4 p = permute(permute(permute(
+                      i.z + vec4(0.0, i1.z, i2.z, 1.0))
+                    + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+                    + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+            vec4 j = p - 49.0 * floor(p * (1.0 / 49.0));
+            vec4 x_ = floor(j * (1.0 / 7.0));
+            vec4 y_ = floor(j - 7.0 * x_);
+            vec4 x = x_ * (2.0 / 7.0) + 0.5 / 7.0 - 1.0;
+            vec4 y = y_ * (2.0 / 7.0) + 0.5 / 7.0 - 1.0;
+            vec4 h = 1.0 - abs(x) - abs(y);
+            vec4 b0 = vec4(x.xy, y.xy);
+            vec4 b1 = vec4(x.zw, y.zw);
+            vec4 s0 = floor(b0)*2.0 + 1.0;
+            vec4 s1 = floor(b1)*2.0 + 1.0;
+            vec4 sh = -step(h, vec4(0.0));
+            vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+            vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+            vec3 p0 = vec3(a0.xy, h.x);
+            vec3 p1 = vec3(a0.zw, h.y);
+            vec3 p2 = vec3(a1.xy, h.z);
+            vec3 p3 = vec3(a1.zw, h.w);
+            vec4 norm = inversesqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+            p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+            vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+            m = m * m;
+            return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+          }
 
-    // Interactive Channel Switching via GSAP & 3D Camera Choreography
-    const channelButtons = document.querySelectorAll('.channel-btn');
-    const cameraHudText = document.getElementById('camera-hud-text');
-    const activeStratumText = document.getElementById('active-stratum-text');
-    const dockTitleText = document.getElementById('dock-title-text');
-    const dockDesc = document.getElementById('dock-desc');
-    const dockStatEngine = document.getElementById('dock-stat-engine');
-    const dockStatTokens = document.getElementById('dock-stat-tokens');
-    const dockStatLatency = document.getElementById('dock-stat-latency');
-    const dockBarFill = document.getElementById('dock-bar-fill');
+          void main() {
+            vNormal = normal;
+            float n1 = snoise(position * 1.8 + vec3(0.0, 0.0, uTime * 0.7));
+            float n2 = snoise(position * 3.6 - vec3(uTime * 0.9, 0.0, 0.0));
+            float disp = (n1 * 0.7 + n2 * 0.3) * (0.2 + uAudioLow * 0.65 + uAudioMid * 0.35);
+            vDisplacement = disp;
+            vec3 newPos = position + normal * disp;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+          }
+        `;
 
-    function switchChannel(channelId) {
-      channelButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.channel === String(channelId)));
-      document.querySelectorAll('.story-card').forEach(card => card.classList.toggle('active', card.dataset.story === String(channelId)));
+        const fragmentShader = `
+          uniform float uAudioHigh;
+          varying float vDisplacement;
+          varying vec3 vNormal;
+          void main() {
+            vec3 gold = vec3(0.984, 0.749, 0.141);
+            vec3 emerald = vec3(0.063, 0.725, 0.506);
+            vec3 deepCore = vec3(0.12, 0.06, 0.02);
 
-      if (channelId === 'all') {
-        // Reset full volumetric exploded stack
-        gsap.to(camera.position, { x: 24, y: 28, z: 30, duration: 1.4, ease: "power3.inOut" });
-        gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.4, ease: "power3.inOut" });
+            float t = clamp(vDisplacement * 1.8 + 0.35 + uAudioHigh * 0.4, 0.0, 1.0);
+            vec3 baseColor = mix(gold, emerald, t);
 
-        layerPlanes.forEach((lp, idx) => {
-          gsap.to(lp.position, { y: strataData[idx].yBase, duration: 1.2, ease: "back.out(1.2)" });
-          gsap.to(lp.scale, { x: 1, y: 1, z: 1, duration: 0.8 });
+            vec3 viewDir = vec3(0.0, 0.0, 1.0);
+            float fresnel = pow(1.0 - max(dot(normalize(vNormal), viewDir), 0.0), 3.0);
+            vec3 finalColor = mix(deepCore, baseColor, clamp(vDisplacement + 0.5, 0.0, 1.0)) + fresnel * gold * 1.3;
+
+            gl_FragColor = vec4(finalColor, 1.0);
+          }
+        `;
+
+        const plasmaGeo = new THREE.IcosahedronGeometry(1.2, 4);
+        const plasmaMat = new THREE.ShaderMaterial({
+          uniforms: this.plasmaUniforms,
+          vertexShader: vertexShader,
+          fragmentShader: fragmentShader,
+          wireframe: true
+        });
+        const plasmaMesh = new THREE.Mesh(plasmaGeo, plasmaMat);
+        l5Group.add(plasmaMesh);
+        l5Group.position.set(80, 0, 0);
+        this.scene.add(l5Group);
+        this.levelModels.push(l5Group);
+      },
+
+      buildCrossWindowConduits: function() {
+        // 3D Cubic Bezier Spline Conduit connecting floating HUD window points
+        this.conduitCurve = new THREE.CubicBezierCurve3(
+          new THREE.Vector3(-3.2, 1.8, 0),
+          new THREE.Vector3(-1.0, 3.2, 1.5),
+          new THREE.Vector3(1.0, -3.2, -1.5),
+          new THREE.Vector3(3.2, -1.8, 0)
+        );
+
+        const particleCount = 384;
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+
+        const pColor = new THREE.Color(0x00f0ff);
+        for (let i = 0; i < particleCount; i++) {
+          const t = i / particleCount;
+          const pt = this.conduitCurve.getPoint(t);
+          positions[i * 3] = pt.x;
+          positions[i * 3 + 1] = pt.y;
+          positions[i * 3 + 2] = pt.z;
+
+          colors[i * 3] = pColor.r;
+          colors[i * 3 + 1] = pColor.g;
+          colors[i * 3 + 2] = pColor.b;
+        }
+
+        const particleGeo = new THREE.BufferGeometry();
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const particleMat = new THREE.PointsMaterial({
+          size: 0.06,
+          vertexColors: true,
+          transparent: true,
+          opacity: 0.85,
+          blending: THREE.AdditiveBlending
         });
 
-        cameraHudText.textContent = "ORBIT: AXONOMETRIC 45° · LAYER HEIGHT: 4.8u";
-        activeStratumText.textContent = "FOCUS: FULL VOLUMETRIC STACK (L1-L5)";
-        dockTitleText.textContent = "5-Level Holistic System";
-        dockDesc.textContent = "All five strata working synchronously: Fable 5.1 wheel, unified Obsidian/Hermes memory, Ministry debate council, overnight dreaming, and gold plasma voice line.";
-        dockStatEngine.textContent = "Orchestrated Fable 5.1 (MoE)";
-        dockStatTokens.textContent = "7.8x Ponytail Ratio";
-        dockStatLatency.textContent = "14ms Gateway Pulse";
-        dockBarFill.style.width = "90%";
-      } else {
-        const targetIndex = parseInt(channelId, 10) - 1;
-        const targetData = strataData[targetIndex];
+        this.conduitParticles = new THREE.Points(particleGeo, particleMat);
+        this.scene.add(this.conduitParticles);
+      },
 
-        // Explode other layers away and zoom into the focused layer
-        layerPlanes.forEach((lp, idx) => {
-          if (idx === targetIndex) {
-            gsap.to(lp.position, { y: 0, duration: 1.2, ease: "power3.out" });
-            gsap.to(lp.scale, { x: 1.15, y: 1.15, z: 1.15, duration: 1.0 });
+      focusLevel: function(index) {
+        this.currentLevelIndex = index;
+        const targetX = index * 20;
+
+        gsap.to(this.camera.position, {
+          x: targetX,
+          y: 0,
+          z: 7.5,
+          duration: 1.2,
+          ease: 'power3.inOut'
+        });
+
+        gsap.to(this.controls.target, {
+          x: targetX,
+          y: 0,
+          z: 0,
+          duration: 1.2,
+          ease: 'power3.inOut'
+        });
+
+        if (this.conduitParticles) {
+          gsap.to(this.conduitParticles.position, {
+            x: targetX,
+            duration: 1.2,
+            ease: 'power3.inOut'
+          });
+        }
+      },
+
+      triggerTokenBurst: function() {
+        const activeModel = this.levelModels[this.currentLevelIndex];
+        if (!activeModel) return;
+
+        gsap.to(activeModel.scale, {
+          x: 1.4, y: 1.4, z: 1.4,
+          duration: 0.25,
+          yoyo: true,
+          repeat: 1,
+          ease: 'power2.out'
+        });
+
+        // Turbulence pulse on conduit particles
+        const posAttr = this.conduitParticles.geometry.attributes.position;
+        for (let i = 0; i < posAttr.count; i++) {
+          posAttr.array[i * 3 + 1] += (Math.random() - 0.5) * 0.4;
+        }
+        posAttr.needsUpdate = true;
+      },
+
+      explodeGeometry: function() {
+        this.exploded = !this.exploded;
+        const activeModel = this.levelModels[this.currentLevelIndex];
+        if (!activeModel) return;
+
+        activeModel.children.forEach((child, idx) => {
+          if (this.exploded) {
+            const spread = (idx + 1) * 1.5;
+            gsap.to(child.position, { x: spread, y: spread * 0.5, z: spread * 0.8, duration: 0.8, ease: 'back.out(1.7)' });
           } else {
-            const offset = idx < targetIndex ? -8 - (targetIndex - idx) * 3 : 8 + (idx - targetIndex) * 3;
-            gsap.to(lp.position, { y: offset, duration: 1.2, ease: "power3.inOut" });
-            gsap.to(lp.scale, { x: 0.75, y: 0.75, z: 0.75, duration: 0.8 });
+            gsap.to(child.position, { x: 0, y: 0, z: 0, duration: 0.8, ease: 'power3.inOut' });
           }
         });
+      },
 
-        gsap.to(camera.position, { x: 14, y: 12, z: 16, duration: 1.4, ease: "power3.inOut" });
-        gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.4, ease: "power3.inOut" });
-
-        cameraHudText.textContent = `FOCUS: ${targetData.name.toUpperCase()}`;
-        activeStratumText.textContent = `STRATUM Y-ORIGIN: ${targetData.yBase}u (ISOLATED)`;
-        dockTitleText.textContent = targetData.name;
-        dockDesc.textContent = targetData.desc;
-        dockStatEngine.textContent = targetData.engine;
-        dockStatTokens.textContent = targetData.tokens;
-        dockStatLatency.textContent = targetData.latency;
-        dockBarFill.style.width = `${60 + targetIndex * 8}%`;
-      }
-    }
-
-    channelButtons.forEach(btn => {
-      btn.addEventListener('click', () => switchChannel(btn.dataset.channel));
-    });
-
-    // Multi-Palette Suite Tab Switching Logic
-    const paletteTabs = document.querySelectorAll('.palette-tab-btn');
-    const palettePanels = document.querySelectorAll('.palette-panel');
-
-    paletteTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        const target = tab.dataset.palette;
-        paletteTabs.forEach(t => t.classList.remove('active'));
-        palettePanels.forEach(p => p.classList.remove('active'));
-
-        tab.classList.add('active');
-        const targetPanel = document.getElementById(`palette-${target}`);
-        if (targetPanel) {
-          targetPanel.classList.add('active');
-
-          // Animate tab focus entry
-          anime({
-            targets: targetPanel,
-            opacity: [0, 1],
-            translateY: [10, 0],
-            duration: 350,
-            easing: 'easeOutCubic'
-          });
+      toggleVoiceWaveform: function() {
+        this.voiceActive = !this.voiceActive;
+        const btn = document.getElementById('btn-voice-line');
+        if (this.voiceActive) {
+          btn.style.background = '#fbbf24';
+          btn.style.color = '#080c16';
+        } else {
+          btn.style.background = '';
+          btn.style.color = '';
         }
-      });
-    });
+      },
 
-    // Storytelling Narrative Flow Click Handlers
-    document.querySelectorAll('.story-card').forEach(card => {
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.story-card').forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-        const level = card.dataset.story;
-        switchChannel(level);
-      });
-    });
+      animate: function() {
+        requestAnimationFrame(() => this.animate());
+        const delta = this.clock.getDelta();
+        const elapsedTime = this.clock.getElapsedTime();
 
-    // Developer Architectural Directive Dispatcher
-    const btnDispatchDirective = document.getElementById('btn-dispatch-directive');
-    const developerDirectiveText = document.getElementById('developer-directive-text');
-    const directiveLog = document.getElementById('directive-log');
+        this.plasmaUniforms.uTime.value = elapsedTime;
 
-    btnDispatchDirective.addEventListener('click', () => {
-      const directiveVal = developerDirectiveText.value.trim();
-      if (!directiveVal) {
-        directiveLog.innerHTML = "<span style='color: #ef4444;'>Error: Directive text empty. Please specify architectural guidance.</span>";
-        return;
+        if (this.voiceActive) {
+          this.plasmaUniforms.uAudioLow.value = 0.4 + Math.sin(elapsedTime * 6.0) * 0.35;
+          this.plasmaUniforms.uAudioMid.value = 0.3 + Math.cos(elapsedTime * 8.0) * 0.3;
+          this.plasmaUniforms.uAudioHigh.value = 0.5 + Math.sin(elapsedTime * 12.0) * 0.4;
+        } else {
+          this.plasmaUniforms.uAudioLow.value = 0.1;
+          this.plasmaUniforms.uAudioMid.value = 0.1;
+          this.plasmaUniforms.uAudioHigh.value = 0.1;
+        }
+
+        // Rotate models
+        this.levelModels.forEach((m, idx) => {
+          m.rotation.y += 0.008 * (idx + 1);
+          m.rotation.x += 0.004;
+        });
+
+        // Flow particles along conduit curve
+        if (this.conduitParticles && this.conduitCurve) {
+          const positions = this.conduitParticles.geometry.attributes.position.array;
+          const count = positions.length / 3;
+          for (let i = 0; i < count; i++) {
+            const t = (elapsedTime * 0.15 + i / count) % 1.0;
+            const pt = this.conduitCurve.getPoint(t);
+            positions[i * 3] = pt.x;
+            positions[i * 3 + 1] = pt.y;
+            positions[i * 3 + 2] = pt.z;
+          }
+          this.conduitParticles.geometry.attributes.position.needsUpdate = true;
+        }
+
+        this.controls.update();
+        this.renderer.render(this.scene, this.camera);
+      },
+
+      onResize: function() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
       }
+    };
 
-      directiveLog.innerHTML = `<span style='color: #10b981;'>✓ DIRECTIVE DISPATCHED:</span> "${directiveVal.slice(0, 48)}..." → Registered in Runtime Memory.`;
+    // =========================================================================
+    // SLIDE DECK ENGINE & ADVISORY COUNCIL CONTROLLER
+    // =========================================================================
+    const DeckEngine = {
+      currentIndex: 0,
+      mode: 'focus',
+      autoplayInterval: null,
 
-      // Trigger visual acknowledgment pulse
-      anime({
-        targets: '.directive-studio',
-        borderColor: ['rgba(245, 158, 11, 0.25)', '#10b981', 'rgba(245, 158, 11, 0.25)'],
-        boxShadow: ['0 0 0px #000', '0 0 25px rgba(16, 185, 129, 0.35)', '0 0 0px #000'],
-        duration: 1000,
-        easing: 'easeInOutQuad'
-      });
-      developerDirectiveText.value = '';
-    });
+      init: function() {
+        this.renderSlide(0);
+        this.renderGrid();
+        HUDInteractions.init();
+      },
 
-    // Real-Time UI Mutation Trigger Demo
-    const btnTriggerMutation = document.getElementById('btn-trigger-mutation');
-    btnTriggerMutation.addEventListener('click', () => {
-      anime({
-        targets: '.canvas-container',
-        borderColor: ['rgba(255,255,255,0.1)', '#f59e0b', 'rgba(255,255,255,0.1)'],
-        boxShadow: ['0 0 0px #000', '0 0 35px rgba(245, 158, 11, 0.4)', '0 0 0px #000'],
-        duration: 1200,
-        easing: 'easeInOutQuad'
-      });
+      renderSlide: function(index) {
+        this.currentIndex = index;
+        const data = DECK_DATA[index];
 
-      // Kinetic camera pulse
-      gsap.to(camera.position, {
-        x: "+=2", y: "+=1.5", z: "+=2", yoyo: true, repeat: 1, duration: 0.4, ease: "sine.inOut"
-      });
+        // Top HUD Pills
+        document.getElementById('slide-badge-pill').innerText = `SLIDE 0${index + 1} / 05`;
+        document.getElementById('slide-name-pill').innerText = data.badge;
 
-      // Scatter and realign particles
-      const pos = particleGeo.attributes.position.array;
-      for(let i=0; i<particleCount*3; i+=3) {
-        pos[i] = (Math.random() - 0.5) * 8;
-        pos[i+1] = (Math.random() - 0.5) * 16;
-        pos[i+2] = (Math.random() - 0.5) * 8;
+        // Slide Content
+        document.getElementById('slide-badge').innerText = data.badge;
+        document.getElementById('slide-title').innerText = data.title;
+        document.getElementById('slide-subtitle').innerText = data.subtitle;
+
+        // Pillars
+        const pillarsContainer = document.getElementById('slide-pillars');
+        pillarsContainer.innerHTML = data.pillars.map(p => `
+          <div class="pillar-item">
+            <div class="pillar-name">${p.name}</div>
+            <div class="pillar-detail">${p.detail}</div>
+          </div>
+        `).join('');
+
+        // Metrics
+        const metricsContainer = document.getElementById('slide-metrics');
+        metricsContainer.innerHTML = data.metrics.map(m => `
+          <div class="metric-card">
+            <div class="metric-label">${m.label}</div>
+            <div class="metric-val">${m.value}</div>
+            <div class="metric-trend">${m.trend}</div>
+          </div>
+        `).join('');
+
+        // Advisory Council
+        document.getElementById('advisor-name').innerText = data.advisory.advisor;
+        document.getElementById('advisor-role').innerText = data.advisory.role;
+        document.getElementById('advisor-quote').innerText = `"${data.advisory.quote}"`;
+        document.getElementById('advisor-verdict').innerText = data.advisory.verdict;
+        document.getElementById('advisor-action').innerText = data.advisory.action;
+
+        // Update Minimap
+        document.querySelectorAll('.stratum-node').forEach((node, i) => {
+          node.classList.toggle('active', i === index);
+        });
+
+        // 3D Focus
+        Spatial3D.focusLevel(index);
+        HUDInteractions.triggerSlidePulse(index);
+      },
+
+      renderGrid: function() {
+        const gridContainer = document.getElementById('grid-slide-deck');
+        gridContainer.innerHTML = DECK_DATA.map((d, i) => `
+          <div class="grid-card ${i === 0 ? 'active' : ''}" onclick="DeckEngine.goToSlide(${i}); DeckEngine.setMode('focus');">
+            <div class="slide-header-badge" style="font-size: 9px; padding: 2px 8px;">LEVEL 0${d.level}</div>
+            <div style="font-family: var(--serif); font-size: 18px; color: #fff; line-height: 1.2;">${d.title}</div>
+            <div style="font-size: 11px; color: var(--muted); line-height: 1.4;">${d.subtitle}</div>
+            <div style="margin-top: auto; font-family: var(--mono); font-size: 12px; color: var(--accent-cyan);">${d.metrics[0].label}: ${d.metrics[0].value}</div>
+          </div>
+        `).join('');
+      },
+
+      nextSlide: function() {
+        const next = (this.currentIndex + 1) % DECK_DATA.length;
+        this.renderSlide(next);
+      },
+
+      prevSlide: function() {
+        const prev = (this.currentIndex - 1 + DECK_DATA.length) % DECK_DATA.length;
+        this.renderSlide(prev);
+      },
+
+      goToSlide: function(index) {
+        this.renderSlide(index);
+      },
+
+      setMode: function(mode) {
+        this.mode = mode;
+        const focusWin = document.getElementById('focus-slide-window');
+        const gridWin = document.getElementById('grid-slide-deck');
+
+        document.getElementById('btn-mode-focus').classList.toggle('active', mode === 'focus');
+        document.getElementById('btn-mode-grid').classList.toggle('active', mode === 'grid');
+
+        if (mode === 'focus') {
+          focusWin.style.display = 'grid';
+          gridWin.style.display = 'none';
+        } else {
+          focusWin.style.display = 'none';
+          gridWin.style.display = 'grid';
+        }
+      },
+
+      toggleAutoplay: function() {
+        const btn = document.getElementById('btn-autoplay');
+        if (this.autoplayInterval) {
+          clearInterval(this.autoplayInterval);
+          this.autoplayInterval = null;
+          btn.innerText = '▶ Autoplay Deck';
+          btn.classList.remove('active');
+        } else {
+          this.autoplayInterval = setInterval(() => this.nextSlide(), 5000);
+          btn.innerText = '⏸ Pause Deck';
+          btn.classList.add('active');
+        }
+      },
+
+      triggerBurst: function() {
+        Spatial3D.triggerTokenBurst();
+        HUDInteractions.triggerBurst();
+      },
+
+      explodeGeometry: function() {
+        Spatial3D.explodeGeometry();
+      },
+
+      toggleVoiceLine: function() {
+        Spatial3D.toggleVoiceWaveform();
       }
-      particleGeo.attributes.position.needsUpdate = true;
-    });
+    };
 
-    // Animation Render Loop
-    let lastTime = performance.now();
-    let frameCount = 0;
-    const fpsCounter = document.getElementById('fps-counter');
+    // =========================================================================
+    // HUD MICRO-INTERACTIONS (Anime.js)
+    // =========================================================================
+    const HUDInteractions = {
+      init: function() {
+        document.querySelectorAll('.hud-btn, .hud-mode-btn, .stratum-node').forEach(btn => {
+          btn.addEventListener('mousedown', () => {
+            anime({ targets: btn, scale: 0.94, duration: 100, easing: 'easeOutQuad' });
+          });
+          btn.addEventListener('mouseup', () => {
+            anime({ targets: btn, scale: 1, duration: 300, easing: 'easeOutElastic(1, .6)' });
+          });
+        });
+      },
 
-    function animate(now) {
-      requestAnimationFrame(animate);
+      triggerSlidePulse: function(index) {
+        anime({
+          targets: '#focus-slide-window',
+          opacity: [0.6, 1],
+          translateY: [12, 0],
+          duration: 450,
+          easing: 'easeOutCubic'
+        });
 
-      // FPS tracking
-      frameCount++;
-      if (now - lastTime >= 1000) {
-        fpsCounter.textContent = frameCount;
-        frameCount = 0;
-        lastTime = now;
+        anime({
+          targets: '#slide-badge-pill',
+          scale: [1, 1.15, 1],
+          duration: 350,
+          easing: 'easeInOutQuad'
+        });
+      },
+
+      triggerBurst: function() {
+        anime({
+          targets: '.hud-bottom-controls',
+          boxShadow: [
+            '0 16px 48px rgba(0,0,0,0.7)',
+            '0 0 50px rgba(0, 240, 255, 0.8)',
+            '0 16px 48px rgba(0,0,0,0.7)'
+          ],
+          duration: 600,
+          easing: 'easeOutExpo'
+        });
       }
+    };
 
-      // Continuous subtle rotation of neural cores
-      coreCores.forEach((c, idx) => {
-        c.rotation.x += 0.01 * (idx % 2 === 0 ? 1 : -1);
-        c.rotation.y += 0.015;
-      });
-
-      // Float particle stream upwards
-      const positions = particleGeo.attributes.position.array;
-      for (let i = 1; i < particleCount * 3; i += 3) {
-        positions[i] += 0.04;
-        if (positions[i] > 8) positions[i] = -8;
-      }
-      particleGeo.attributes.position.needsUpdate = true;
-
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    requestAnimationFrame(animate);
-
-    // Responsive Canvas Resize
-    window.addEventListener('resize', () => {
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
+    // Initialize application on DOM ready
+    window.addEventListener('DOMContentLoaded', () => {
+      Spatial3D.init();
+      DeckEngine.init();
     });
   </script>
 </body>
